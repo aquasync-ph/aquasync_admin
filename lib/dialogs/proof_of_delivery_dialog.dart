@@ -118,6 +118,156 @@ class ProofOfDeliveryDialog extends StatelessWidget {
     );
   }
 
+  Widget _buildOrganizedNotes(BuildContext context, String notes) {
+    if (notes.isEmpty) return const SizedBox.shrink();
+
+    // Split by pipe
+    final rawParts = notes.split('|').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+
+    if (rawParts.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        child: Text(
+          notes,
+          style: const TextStyle(fontSize: 12, color: Colors.white70),
+        ),
+      );
+    }
+
+    List<Widget> noteWidgets = [];
+
+    for (var part in rawParts) {
+      String label = '';
+      String value = part;
+      IconData iconData = Icons.notes_rounded;
+      Color iconColor = const Color(0xFF7DD3FC);
+
+      if (part.contains(':')) {
+        final colonIdx = part.indexOf(':');
+        label = part.substring(0, colonIdx).trim();
+        value = part.substring(colonIdx + 1).trim();
+
+        final lowerLabel = label.toLowerCase();
+        if (lowerLabel.contains('recipient') || lowerLabel.contains('customer')) {
+          iconData = Icons.person_rounded;
+          iconColor = const Color(0xFF38BDF8);
+        } else if (lowerLabel.contains('schedule') || lowerLabel.contains('date') || lowerLabel.contains('time')) {
+          iconData = Icons.schedule_rounded;
+          iconColor = const Color(0xFF34D399);
+        } else if (lowerLabel.contains('ref') || lowerLabel.contains('gcash') || lowerLabel.contains('payment')) {
+          iconData = Icons.payment_rounded;
+          iconColor = const Color(0xFFFCD34D);
+        } else if (lowerLabel.contains('receipt') || lowerLabel.contains('image') || lowerLabel.contains('photo')) {
+          iconData = Icons.receipt_long_rounded;
+          iconColor = const Color(0xFFEC4899);
+        } else {
+          iconData = Icons.info_outline_rounded;
+          iconColor = const Color(0xFF7DD3FC);
+        }
+      } else {
+        if (part.startsWith('http://') || part.startsWith('https://')) {
+          label = 'Attachment URL';
+          iconData = Icons.link_rounded;
+          iconColor = const Color(0xFF38BDF8);
+        }
+      }
+
+      noteWidgets.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: iconColor.withValues(alpha: 0.3)),
+                ),
+                child: Icon(iconData, size: 14, color: iconColor),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (label.isNotEmpty) ...[
+                      Text(
+                        label.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: iconColor,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                    ],
+                    if (value.startsWith('http://') || value.startsWith('https://'))
+                      InkWell(
+                        onTap: () => showFullProofImageDialog(
+                          context,
+                          value,
+                          orderNumber: delivery.orderNumber,
+                          driverName: delivery.driverName,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                value,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF38BDF8),
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.open_in_new_rounded, size: 12, color: Color(0xFF38BDF8)),
+                          ],
+                        ),
+                      )
+                    else
+                      Text(
+                        value,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          height: 1.3,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: noteWidgets,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final proofUrl = delivery.proofUrl.trim();
@@ -366,19 +516,7 @@ class ProofOfDeliveryDialog extends StatelessWidget {
                             style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7DD3FC), letterSpacing: 0.8),
                           ),
                           const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-                            ),
-                            child: Text(
-                              delivery.notes,
-                              style: const TextStyle(fontSize: 12, color: Colors.white70),
-                            ),
-                          ),
+                          _buildOrganizedNotes(context, delivery.notes),
                         ],
                       ],
                     ),

@@ -28,37 +28,43 @@ class AppGlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(16);
+    final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(20);
+    const Color brandPrimary = Color(0xFF0098DA);
     final borderColor = isHighlighted
-        ? const Color(0xFF0098DA)
-        : (accentColor ?? const Color(0xFF0098DA).withValues(alpha: 0.30));
+        ? brandPrimary
+        : (accentColor ?? brandPrimary.withValues(alpha: 0.30));
 
     final card = Container(
       width: width,
       height: height,
-      padding: padding ?? const EdgeInsets.all(16),
+      padding: padding ?? const EdgeInsets.all(20),
       margin: margin,
       decoration: BoxDecoration(
-        color: isHighlighted
-            ? const Color(0xFFE6F3FA)
-            : (backgroundColor ?? Colors.white),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isHighlighted
+              ? [const Color(0xFFE0F2FE), const Color(0xFFBAE6FD)]
+              : [backgroundColor ?? Colors.white, backgroundColor ?? Colors.white],
+        ),
         borderRadius: effectiveBorderRadius,
         border: Border.all(
           color: borderColor,
-          width: isHighlighted ? 2.0 : 1.0,
+          width: isHighlighted ? 2.0 : 1.2,
         ),
         boxShadow: [
           if (isHighlighted)
-            const BoxShadow(
-              color: Color(0x330098DA),
-              blurRadius: 16,
-              spreadRadius: 1,
+            BoxShadow(
+              color: brandPrimary.withValues(alpha: 0.28),
+              blurRadius: 22,
+              spreadRadius: 2,
+              offset: const Offset(0, 6),
             )
           else
-            const BoxShadow(
-              color: Color(0x140B1D2A),
-              blurRadius: 16,
-              offset: Offset(0, 4),
+            BoxShadow(
+              color: const Color(0xFF0B1D2A).withValues(alpha: 0.08),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
             ),
         ],
       ),
@@ -76,3 +82,4 @@ class AppGlassCard extends StatelessWidget {
     return card;
   }
 }
+

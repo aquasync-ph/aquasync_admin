@@ -22,7 +22,6 @@ class AppSidebar extends StatefulWidget {
     required this.onLogout,
   });
 
-
   @override
   State<AppSidebar> createState() => _AppSidebarState();
 }
@@ -45,14 +44,14 @@ class _AppSidebarState extends State<AppSidebar> {
 
   Widget _buildNavCategoryHeader(String title, double paddingTop, double paddingBottom) {
     return Padding(
-      padding: EdgeInsets.only(left: 8, right: 8, top: paddingTop, bottom: paddingBottom),
+      padding: EdgeInsets.only(left: 10, right: 10, top: paddingTop, bottom: paddingBottom),
       child: Text(
         title,
         style: const TextStyle(
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-          color: Color(0xFF7DD3FC),
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.2,
+          color: Color(0xFF38BDF8),
         ),
       ),
     );
@@ -80,10 +79,10 @@ class _AppSidebarState extends State<AppSidebar> {
     return Padding(
       padding: EdgeInsets.only(bottom: marginBottom),
       child: Material(
-        color: isActive ? const Color(0xFF0098DA) : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(14),
           onTap: () {
             widget.onNavigate(index);
             final scaffold = Scaffold.maybeOf(context);
@@ -91,16 +90,39 @@ class _AppSidebarState extends State<AppSidebar> {
               Navigator.of(context).pop();
             }
           },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: verticalPadding),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: verticalPadding),
+            decoration: BoxDecoration(
+              gradient: isActive
+                  ? const LinearGradient(
+                      colors: [Color(0xFF0098DA), Color(0xFF0284C7)],
+                    )
+                  : null,
+              color: isActive ? null : Colors.transparent,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isActive ? const Color(0xFF38BDF8) : Colors.transparent,
+                width: 1.2,
+              ),
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF0098DA).withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
             child: Row(
               children: [
                 Icon(
                   icon,
-                  size: iconSize,
-                  color: isActive ? Colors.white : const Color(0xFF7DD3FC),
+                  size: iconSize + 2, // Larger icons as requested
+                  color: isActive ? Colors.white : const Color(0xFF38BDF8),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Row(
                     children: [
@@ -111,23 +133,23 @@ class _AppSidebarState extends State<AppSidebar> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: fontSize,
-                            height: 1.15,
-                            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                            color: isActive ? Colors.white : const Color(0xFFE0F2FE),
+                            height: 1.2,
+                            fontWeight: isActive ? FontWeight.w900 : FontWeight.w600,
+                            color: isActive ? Colors.white : const Color(0xFFF0F9FF),
                           ),
                         ),
                       ),
                       if (isNewBadge) ...[
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF0EA5E9),
-                            borderRadius: BorderRadius.circular(4),
+                            color: const Color(0xFF38BDF8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
                             'NEW',
-                            style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.white),
+                            style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.w900, color: Color(0xFF0B1D2A)),
                           ),
                         ),
                       ],
@@ -136,16 +158,17 @@ class _AppSidebarState extends State<AppSidebar> {
                 ),
                 if (badgeCount != null && badgeCount > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: isActive ? const Color(0xFF075985) : const Color(0xFF38BDF8),
+                      color: isActive ? const Color(0xFF041E38) : const Color(0xFF0098DA),
                       borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1),
                     ),
                     child: Text(
                       '$badgeCount',
                       style: const TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
                       ),
                     ),
@@ -166,40 +189,40 @@ class _AppSidebarState extends State<AppSidebar> {
   }) {
     final isExpanded = _expandedSections[title] ?? true;
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF041E38).withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x3838BDF8)),
+        color: const Color(0xFF041E38).withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           InkWell(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             onTap: () {
               setState(() {
                 _expandedSections[title] = !isExpanded;
               });
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.9,
-                      color: Color(0xFF7DD3FC),
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.0,
+                      color: Color(0xFF38BDF8),
                     ),
                   ),
                   Icon(
                     isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                    size: 18,
-                    color: const Color(0xFF7DD3FC),
+                    size: 20,
+                    color: const Color(0xFF38BDF8),
                   ),
                 ],
               ),
@@ -207,7 +230,7 @@ class _AppSidebarState extends State<AppSidebar> {
           ),
           if (isExpanded)
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: children,
@@ -224,77 +247,57 @@ class _AppSidebarState extends State<AppSidebar> {
       builder: (context, constraints) {
         final availableHeight = constraints.maxHeight;
 
-        double verticalPadding;
-        double iconSize;
-        double fontSize;
-        double itemMarginBottom;
-        double sidePadding;
-        double logoutPaddingVertical;
-
-        if (availableHeight >= 760) {
-          verticalPadding = 9.0;
-          iconSize = 17.0;
-          fontSize = 11.5;
-          itemMarginBottom = 4.0;
-          sidePadding = 16.0;
-          logoutPaddingVertical = 12.0;
-        } else if (availableHeight >= 700) {
-          verticalPadding = 7.5;
-          iconSize = 16.5;
-          fontSize = 11.0;
-          itemMarginBottom = 3.0;
-          sidePadding = 14.0;
-          logoutPaddingVertical = 10.0;
-        } else {
-          verticalPadding = 5.5;
-          iconSize = 15.5;
-          fontSize = 10.5;
-          itemMarginBottom = 2.0;
-          sidePadding = 12.0;
-          logoutPaddingVertical = 8.0;
-        }
+        double verticalPadding = 10.0;
+        double iconSize = 19.0;
+        double fontSize = 12.0;
+        double itemMarginBottom = 6.0;
+        double sidePadding = 18.0;
+        double logoutPaddingVertical = 14.0;
 
         final headerWidget = Column(
           children: [
             Padding(
-              padding: EdgeInsets.only(bottom: availableHeight < 700 ? 8 : 12, left: 2, right: 2),
+              padding: const EdgeInsets.only(bottom: 14, left: 2, right: 2),
               child: Row(
                 children: [
                   Container(
-                    width: availableHeight < 700 ? 34 : 40,
-                    height: availableHeight < 700 ? 34 : 40,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF0098DA), Color(0xFF38BDF8)],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
                       boxShadow: const [
-                        BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, 3)),
+                        BoxShadow(color: Color(0x400098DA), blurRadius: 12, offset: Offset(0, 4)),
                       ],
                     ),
                     alignment: Alignment.center,
-                    child: Icon(
+                    child: const Icon(
                       Icons.water_drop_rounded,
-                      color: const Color(0xFF0284C7),
-                      size: availableHeight < 700 ? 20 : 24,
+                      color: Colors.white,
+                      size: 26,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'AquaSync',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
                           color: Colors.white,
+                          letterSpacing: -0.5,
                         ),
                       ),
                       Text(
                         'ADMIN CONTROL CENTER',
                         style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.8,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.1,
                           color: Color(0xFFBAE6FD),
                         ),
                       ),
@@ -305,57 +308,57 @@ class _AppSidebarState extends State<AppSidebar> {
             ),
             // Quick Search bar
             Container(
-              margin: EdgeInsets.only(bottom: availableHeight < 700 ? 8 : 12),
+              margin: const EdgeInsets.only(bottom: 14),
               child: TextField(
                 controller: _searchController,
                 onChanged: (val) => setState(() => _searchQuery = val),
                 style: TextStyle(color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.w600),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: const Color(0xFF041E38).withValues(alpha: 0.6),
-                  hintText: 'Quick Search',
+                  fillColor: const Color(0xFF041E38).withValues(alpha: 0.8),
+                  hintText: 'Quick Search Navigation',
                   hintStyle: TextStyle(color: const Color(0xFF7DD3FC).withValues(alpha: 0.7), fontSize: fontSize),
-                  prefixIcon: Icon(Icons.search_rounded, color: const Color(0xFF7DD3FC), size: iconSize),
+                  prefixIcon: Icon(Icons.search_rounded, color: const Color(0xFF38BDF8), size: iconSize + 2),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: Icon(Icons.clear, color: const Color(0xFF7DD3FC), size: iconSize - 2),
+                          icon: Icon(Icons.clear_rounded, color: const Color(0xFF38BDF8), size: iconSize),
                           onPressed: () {
                             _searchController.clear();
                             setState(() => _searchQuery = '');
                           },
                         )
                       : null,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0x3838BDF8), width: 1.0)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0x3838BDF8), width: 1.0)),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0x3838BDF8), width: 1.2)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0x3838BDF8), width: 1.2)),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.8)),
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
               ),
             ),
-            const Divider(color: Color(0x3838BDF8), height: 1),
-            SizedBox(height: availableHeight < 700 ? 6 : 10),
+            const Divider(color: Color(0x3838BDF8), height: 1.5),
+            const SizedBox(height: 12),
           ],
         );
 
         final logoutButton = Padding(
-          padding: EdgeInsets.only(top: availableHeight < 700 ? 6 : 10),
+          padding: const EdgeInsets.only(top: 12),
           child: SizedBox(
             width: double.infinity,
             child: OutlinedButton(
               onPressed: widget.onLogout,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0x3838BDF8)),
-                backgroundColor: const Color(0x1A0284C7),
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: logoutPaddingVertical),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                side: const BorderSide(color: Color(0xFF0098DA), width: 1.5),
+                backgroundColor: const Color(0xFF0098DA).withValues(alpha: 0.18),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: logoutPaddingVertical),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 alignment: Alignment.centerLeft,
               ),
               child: Row(
                 children: [
-                  Icon(Icons.logout_rounded, color: const Color(0xFF7DD3FC), size: iconSize),
-                  const SizedBox(width: 10),
-                  Text('Logout Session', style: TextStyle(color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.bold)),
+                  Icon(Icons.logout_rounded, color: const Color(0xFF38BDF8), size: iconSize + 2),
+                  const SizedBox(width: 12),
+                  Text('Logout Session', style: TextStyle(color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.w900)),
                 ],
               ),
             ),
@@ -369,13 +372,13 @@ class _AppSidebarState extends State<AppSidebar> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFF0B1D2A),
-                Color(0xFF1B4965),
-                Color(0xFF0B1D2A),
+                Color(0xFF061A2B),
+                Color(0xFF0B253D),
+                Color(0xFF04121F),
               ],
             ),
           ),
-          padding: EdgeInsets.symmetric(horizontal: sidePadding, vertical: availableHeight < 700 ? 12 : 18),
+          padding: EdgeInsets.symmetric(horizontal: sidePadding, vertical: 18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -388,10 +391,10 @@ class _AppSidebarState extends State<AppSidebar> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // OVERVIEW
-                      _buildNavCategoryHeader('OVERVIEW', 2, 4),
+                      _buildNavCategoryHeader('OVERVIEW', 2, 6),
                       _buildNavItem(context: context, index: 0, icon: Icons.grid_view_rounded, title: 'Dashboard', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
 
                       // CORE OPERATIONS
                       _buildSectionCard(
@@ -399,11 +402,10 @@ class _AppSidebarState extends State<AppSidebar> {
                         verticalPadding: verticalPadding,
                         fontSize: fontSize,
                         children: [
-                          _buildNavItem(context: context, index: 1, icon: Icons.local_shipping_outlined, title: 'Orders & Deliveries', badgeCount: widget.pendingCount > 0 ? widget.pendingCount : null, verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
+                          _buildNavItem(context: context, index: 1, icon: Icons.local_shipping_rounded, title: 'Orders & Deliveries', badgeCount: widget.pendingCount > 0 ? widget.pendingCount : null, verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
                           _buildNavItem(context: context, index: 2, icon: Icons.map_rounded, title: 'Live Map & Geofence', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
                         ],
                       ),
-
 
                       // ASSET MANAGEMENT
                       _buildSectionCard(
@@ -411,10 +413,10 @@ class _AppSidebarState extends State<AppSidebar> {
                         verticalPadding: verticalPadding,
                         fontSize: fontSize,
                         children: [
-                          _buildNavCategoryHeader('INVENTORY', 2, 2),
-                          _buildNavItem(context: context, index: 7, icon: Icons.inventory_2_outlined, title: 'Products (${widget.productsCount})', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
-                          _buildNavItem(context: context, index: 8, icon: Icons.local_drink_outlined, title: 'Gallons & QR Registry', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
-                          _buildNavCategoryHeader('STAFF & USERS', 6, 2),
+                          _buildNavCategoryHeader('INVENTORY', 2, 4),
+                          _buildNavItem(context: context, index: 7, icon: Icons.inventory_2_rounded, title: 'Products (${widget.productsCount})', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
+                          _buildNavItem(context: context, index: 8, icon: Icons.local_drink_rounded, title: 'Gallons & QR Registry', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
+                          _buildNavCategoryHeader('STAFF & USERS', 8, 4),
                           _buildNavItem(context: context, index: 5, icon: Icons.manage_accounts_rounded, title: 'Account Management', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
                         ],
                       ),
@@ -427,18 +429,18 @@ class _AppSidebarState extends State<AppSidebar> {
                         children: [
                           _buildNavItem(context: context, index: 9, icon: Icons.local_offer_rounded, title: 'Promo Codes & Coupons', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
                           _buildNavItem(context: context, index: 6, icon: Icons.credit_card_rounded, title: 'Loyalty / RFID Cards', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
-                          _buildNavItem(context: context, index: 4, icon: Icons.rate_review_outlined, title: 'Customer Reviews', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
+                          _buildNavItem(context: context, index: 4, icon: Icons.rate_review_rounded, title: 'Customer Reviews', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
                           _buildNavItem(context: context, index: 3, icon: Icons.campaign_rounded, title: 'Announcements', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
                         ],
                       ),
 
                       // FINANCE
-                      _buildNavCategoryHeader('FINANCE', 4, 4),
+                      _buildNavCategoryHeader('FINANCE', 6, 6),
                       _buildNavItem(context: context, index: 10, icon: Icons.insights_rounded, title: 'Sales & Revenue', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
 
                       // SYSTEM
-                      _buildNavCategoryHeader('SYSTEM', 8, 4),
-                      _buildNavItem(context: context, index: 11, icon: Icons.settings_outlined, title: 'Settings', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
+                      _buildNavCategoryHeader('SYSTEM', 10, 6),
+                      _buildNavItem(context: context, index: 11, icon: Icons.settings_rounded, title: 'Settings', verticalPadding: verticalPadding, marginBottom: itemMarginBottom, iconSize: iconSize, fontSize: fontSize),
                     ],
                   ),
                 ),
