@@ -643,18 +643,27 @@ class _ProductsPageState extends State<ProductsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 12,
             children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Product Catalog', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A))),
-                  SizedBox(height: 4),
-                  Text('Products available for User Ordering & Cashier POS in public.products.', style: TextStyle(fontSize: 13, color: Color(0xFF5A5E63))),
-                ],
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Product Catalog', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A))),
+                    SizedBox(height: 4),
+                    Text('Products available for User Ordering & Cashier POS in public.products.', style: TextStyle(fontSize: 13, color: Color(0xFF5A5E63))),
+                  ],
+                ),
               ),
-              Row(
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   // View mode toggle
                   Container(
@@ -664,6 +673,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       border: Border.all(color: const Color(0xFF5A5E63).withValues(alpha: 0.3)),
                     ),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
                           onPressed: () => setState(() => _isGridView = true),
@@ -680,7 +690,6 @@ class _ProductsPageState extends State<ProductsPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
                   SegmentedButton<bool>(
                     style: SegmentedButton.styleFrom(
                       selectedBackgroundColor: const Color(0xFF0098DA),
@@ -699,7 +708,6 @@ class _ProductsPageState extends State<ProductsPage> {
                       _currentPage = 1;
                     }),
                   ),
-                  const SizedBox(width: 12),
                   ElevatedButton.icon(
                     onPressed: widget.onAddProduct,
                     icon: const Icon(Icons.add_rounded, size: 18),

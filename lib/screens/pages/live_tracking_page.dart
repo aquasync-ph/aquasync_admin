@@ -191,6 +191,7 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
         geofenceRadiusKm: _geofenceRadiusKm,
         name: _stationName,
         address: _stationAddress,
+        enforceGeofence: SupabaseService.enforceGeofenceRadius,
       );
 
       if (mounted) {
@@ -198,7 +199,7 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
         if (saved) {
           if (showSuccessToast) {
             SweetAlert.showToast(
-              'Station geofence (${_geofenceRadiusKm.toStringAsFixed(1)} km) saved to database!',
+              'Station location & geofence radius (${_geofenceRadiusKm.toStringAsFixed(1)} km) saved to database!',
               type: SweetAlertType.success,
             );
           }

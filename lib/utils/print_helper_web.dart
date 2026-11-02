@@ -29,6 +29,95 @@ String _determineClassification(Map<String, dynamic> item) {
 }
 
 void _printHtmlInIframe(String htmlContent) {
+  final printScript = '''
+    <style>
+      @media print {
+        .aquasync-no-print { display: none !important; }
+        .aquasync-print-padding { padding-top: 0 !important; }
+      }
+      .aquasync-no-print-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #0f172a;
+        color: #ffffff;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        z-index: 99999;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      .aquasync-no-print-btn {
+        background: #0284c7;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.2s;
+      }
+      .aquasync-no-print-btn:hover {
+        background: #0369a1;
+      }
+      .aquasync-no-print-close {
+        background: #475569;
+        margin-left: 8px;
+      }
+      .aquasync-print-padding {
+        padding-top: 60px !important;
+      }
+    </style>
+    <div class="aquasync-no-print aquasync-no-print-bar">
+      <div style="font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+        <span>🖨️</span> <span>AquaSync Print Document Preview</span>
+      </div>
+      <div>
+        <button class="aquasync-no-print-btn" onclick="window.print()">Print Document</button>
+        <button class="aquasync-no-print-btn aquasync-no-print-close" onclick="window.close()">Close Window</button>
+      </div>
+    </div>
+    <script>
+      window.onload = function() {
+        setTimeout(function() {
+          window.focus();
+          window.print();
+        }, 300);
+      };
+    </script>
+  ''';
+
+  String fullHtml = htmlContent;
+  if (fullHtml.contains('</body>')) {
+    fullHtml = fullHtml.replaceFirst('</body>', '$printScript</body>');
+  } else {
+    fullHtml += printScript;
+  }
+
+  if (fullHtml.contains('<body')) {
+    fullHtml = fullHtml.replaceFirst('<body', '<body class="aquasync-print-padding"');
+  }
+
+  // Method 1: Direct Popup Window with auto-print (Primary for Web)
+  try {
+    final popupWin = html.window.open('', '_blank', 'width=950,height=900,scrollbars=yes,resizable=yes');
+    if (popupWin != null) {
+      final dynamic win = popupWin;
+      final dynamic pDoc = win.document;
+      pDoc.open();
+      pDoc.write(fullHtml);
+      pDoc.close();
+      return;
+    }
+  } catch (_) {
+    // If popup is blocked by browser, continue to iframe fallback
+  }
+
+  // Method 2: Off-screen non-zero iframe (Fallback if popups are blocked)
   final existingIframe = html.document.getElementById('aquasync_print_iframe');
   if (existingIframe != null) {
     existingIframe.remove();
@@ -37,35 +126,29 @@ void _printHtmlInIframe(String htmlContent) {
   final iframe = html.IFrameElement()
     ..id = 'aquasync_print_iframe'
     ..style.position = 'fixed'
-    ..style.right = '0'
-    ..style.bottom = '0'
-    ..style.width = '0'
-    ..style.height = '0'
+    ..style.left = '-9999px'
+    ..style.top = '-9999px'
+    ..style.width = '1000px'
+    ..style.height = '1000px'
     ..style.border = '0'
-    ..style.visibility = 'hidden';
+    ..style.opacity = '0.01'
+    ..style.pointerEvents = 'none';
 
   html.document.body!.children.add(iframe);
 
   final dynamic win = iframe.contentWindow;
   if (win != null) {
-    win.document.open();
-    win.document.write(htmlContent);
-    win.document.close();
+    final dynamic doc = win.document;
+    doc.open();
+    doc.write(fullHtml);
+    doc.close();
 
-    Future.delayed(const Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 400), () {
       try {
         win.focus();
         win.print();
       } catch (_) {
-        final popupWin = html.window.open('', '_blank', 'width=850,height=850');
-        final dynamic pDoc = (popupWin as dynamic).document;
-        pDoc.open();
-        pDoc.write(htmlContent);
-        pDoc.close();
-        Future.delayed(const Duration(milliseconds: 300), () {
-          (popupWin as dynamic).focus();
-          (popupWin as dynamic).print();
-        });
+        html.window.print();
       }
     });
   }

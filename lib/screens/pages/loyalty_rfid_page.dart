@@ -129,16 +129,22 @@ class _LoyaltyRfidPageState extends State<LoyaltyRfidPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 12,
             children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Customer Loyalty / RFID Management', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                  SizedBox(height: 4),
-                  Text('RFID cards identify registered loyal customers. 15 qualifying gallons = Reward Ready.', style: TextStyle(fontSize: 13, color: Color(0xFF475569))),
-                ],
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Customer Loyalty / RFID Management', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                    SizedBox(height: 4),
+                    Text('RFID cards identify registered loyal customers. 15 qualifying gallons = Reward Ready.', style: TextStyle(fontSize: 13, color: Color(0xFF475569))),
+                  ],
+                ),
               ),
               ElevatedButton.icon(
                 onPressed: widget.onRegisterUnassignedRfid,

@@ -6,6 +6,7 @@ import 'deliveries_page.dart';
 class OrdersAndDeliveriesPage extends StatefulWidget {
   final List<OrderItemModel> orders;
   final List<DeliveryModel> deliveries;
+  final Set<String> processingOrderIds;
   final Function(OrderItemModel) onApprove;
   final Function(OrderItemModel, String)? onReject;
   final Function(OrderItemModel) onAssignDriver;
@@ -24,6 +25,7 @@ class OrdersAndDeliveriesPage extends StatefulWidget {
     super.key,
     required this.orders,
     required this.deliveries,
+    this.processingOrderIds = const {},
     required this.onApprove,
     this.onReject,
     required this.onAssignDriver,
@@ -100,6 +102,7 @@ class _OrdersAndDeliveriesPageState extends State<OrdersAndDeliveriesPage> with 
             children: [
               OrdersPage(
                 orders: widget.orders,
+                processingOrderIds: widget.processingOrderIds,
                 onApprove: widget.onApprove,
                 onReject: widget.onReject,
                 onAssignDriver: widget.onAssignDriver,

@@ -162,6 +162,8 @@ class _AddProductDialogState extends State<AddProductDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final maxDialogHeight = MediaQuery.of(context).size.height * 0.90;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -170,7 +172,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 520, maxHeight: 720),
+            constraints: BoxConstraints(maxWidth: 520, maxHeight: maxDialogHeight),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: const Color(0xFA082A45),

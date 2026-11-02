@@ -474,7 +474,20 @@ class OrderItemModel {
       if (custEmail.isEmpty) custEmail = '—';
     }
 
-    String pUrl = (map['proof_url'] ?? map['proof_of_delivery'] ?? map['proof_of_delivery_url'] ?? map['proof_image_url'] ?? map['proof_photo_url'] ?? map['proof_photo'] ?? map['proof_image'] ?? map['delivery_proof'] ?? map['delivery_proof_url'] ?? '').toString().trim();
+    String pUrl = (map['pod_image_url'] ??
+            map['proof_url'] ??
+            map['proof_of_delivery'] ??
+            map['proof_of_delivery_url'] ??
+            map['proof_image_url'] ??
+            map['proof_photo_url'] ??
+            map['proof_photo'] ??
+            map['proof_image'] ??
+            map['delivery_proof'] ??
+            map['delivery_proof_url'] ??
+            map['pod_url'] ??
+            map['pod_photo'] ??
+            map['pod_image'] ??
+            '').toString().trim();
 
     String driverName = '';
     final deliveries = map['deliveries'];
@@ -486,7 +499,20 @@ class OrderItemModel {
       }
       if (driverName.isEmpty) driverName = delivery['driver_id']?.toString() ?? '';
       if (pUrl.isEmpty) {
-        pUrl = (delivery['proof_url'] ?? delivery['proof_of_delivery'] ?? delivery['proof_of_delivery_url'] ?? delivery['proof_image_url'] ?? delivery['proof_photo_url'] ?? delivery['proof_photo'] ?? delivery['proof_image'] ?? delivery['delivery_proof'] ?? delivery['delivery_proof_url'] ?? '').toString().trim();
+        pUrl = (delivery['pod_image_url'] ??
+                delivery['proof_url'] ??
+                delivery['proof_of_delivery'] ??
+                delivery['proof_of_delivery_url'] ??
+                delivery['proof_image_url'] ??
+                delivery['proof_photo_url'] ??
+                delivery['proof_photo'] ??
+                delivery['proof_image'] ??
+                delivery['delivery_proof'] ??
+                delivery['delivery_proof_url'] ??
+                delivery['pod_url'] ??
+                delivery['pod_photo'] ??
+                delivery['pod_image'] ??
+                '').toString().trim();
       }
     }
 
@@ -774,6 +800,44 @@ class DeliveryModel {
     this.notes = '',
   });
 
+  DeliveryModel copyWith({
+    String? id,
+    String? orderId,
+    String? orderNumber,
+    String? customerName,
+    String? driverName,
+    String? status,
+    String? assignedAt,
+    String? acceptedAt,
+    String? startedAt,
+    String? deliveredAt,
+    String? paymentMethod,
+    String? receiptUrl,
+    String? gcashReference,
+    double? totalAmount,
+    String? proofUrl,
+    String? notes,
+  }) {
+    return DeliveryModel(
+      id: id ?? this.id,
+      orderId: orderId ?? this.orderId,
+      orderNumber: orderNumber ?? this.orderNumber,
+      customerName: customerName ?? this.customerName,
+      driverName: driverName ?? this.driverName,
+      status: status ?? this.status,
+      assignedAt: assignedAt ?? this.assignedAt,
+      acceptedAt: acceptedAt ?? this.acceptedAt,
+      startedAt: startedAt ?? this.startedAt,
+      deliveredAt: deliveredAt ?? this.deliveredAt,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      receiptUrl: receiptUrl ?? this.receiptUrl,
+      gcashReference: gcashReference ?? this.gcashReference,
+      totalAmount: totalAmount ?? this.totalAmount,
+      proofUrl: proofUrl ?? this.proofUrl,
+      notes: notes ?? this.notes,
+    );
+  }
+
   factory DeliveryModel.fromSupabase(Map<String, dynamic> map) {
     String ordNum = 'ORD-001';
     String custName = 'Customer';
@@ -934,7 +998,8 @@ class DeliveryModel {
       return str;
     }
 
-    String pUrl = (map['proof_url'] ??
+    String pUrl = (map['pod_image_url'] ??
+            map['proof_url'] ??
             map['proof_of_delivery'] ??
             map['proof_of_delivery_url'] ??
             map['proof_image_url'] ??
@@ -948,6 +1013,8 @@ class DeliveryModel {
             map['pod_url'] ??
             map['pod_photo'] ??
             map['pod_image'] ??
+            map['fulfillment_image'] ??
+            map['fulfillment_url'] ??
             map['completion_photo'] ??
             map['signature_url'] ??
             map['photo_url'] ??
@@ -971,7 +1038,8 @@ class DeliveryModel {
 
     if (pUrl.isEmpty && map['orders'] != null && map['orders'] is Map) {
       final ord = map['orders'] as Map;
-      pUrl = (ord['proof_url'] ??
+      pUrl = (ord['pod_image_url'] ??
+              ord['proof_url'] ??
               ord['proof_of_delivery'] ??
               ord['proof_of_delivery_url'] ??
               ord['proof_image_url'] ??
@@ -985,6 +1053,8 @@ class DeliveryModel {
               ord['pod_url'] ??
               ord['pod_photo'] ??
               ord['pod_image'] ??
+              ord['fulfillment_image'] ??
+              ord['fulfillment_url'] ??
               ord['completion_photo'] ??
               ord['signature_url'] ??
               ord['photo_url'] ??

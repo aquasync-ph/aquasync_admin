@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../widgets/sweet_alert.dart';
-import '../services/supabase_service.dart';
 import '../utils/print_helper.dart';
 
 class ReceiptDetailsDialog extends StatelessWidget {
@@ -266,68 +265,22 @@ class ReceiptDetailsDialog extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              PrintHelper.printReceipt(sale);
-                              SweetAlert.showToast(
-                                'Official Invoice & Receipt sent to printer!',
-                                type: SweetAlertType.success,
-                                title: 'Printing Receipt',
-                              );
-                            },
-                            icon: const Icon(Icons.print_rounded, size: 16, color: Color(0xFF38BDF8)),
-                            label: const Text('Print', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          OutlinedButton.icon(
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  backgroundColor: const Color(0xFF0A3052),
-                                  title: const Text('Delete Transaction', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                  content: const Text('Are you sure you want to permanently delete this sales transaction record?', style: TextStyle(color: Color(0xFFBAE6FD))),
-                                  actions: [
-                                    TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel', style: TextStyle(color: Color(0xFFBAE6FD)))),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
-                                      onPressed: () => Navigator.of(ctx).pop(true),
-                                      child: const Text('Delete', style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              if (confirm == true) {
-                                try {
-                                  await SupabaseService.deleteSale(idStr);
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
-                                    SweetAlert.showSuccess(context, 'Sales transaction deleted successfully.');
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    SweetAlert.showError(context, 'Failed to delete sale: $e');
-                                  }
-                                }
-                              }
-                            },
-                            icon: const Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFEF4444)),
-                            label: const Text('Delete', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0x66EF4444)),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                          ),
-                        ],
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          PrintHelper.printReceipt(sale);
+                          SweetAlert.showToast(
+                            'Official Invoice & Receipt sent to printer!',
+                            type: SweetAlertType.success,
+                            title: 'Printing Receipt',
+                          );
+                        },
+                        icon: const Icon(Icons.print_rounded, size: 16, color: Color(0xFF38BDF8)),
+                        label: const Text('Print', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
                       ),
                       ElevatedButton(
                         onPressed: () => Navigator.of(context).pop(),

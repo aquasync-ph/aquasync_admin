@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/models.dart';
@@ -61,22 +63,94 @@ class SupabaseService {
     stationGeofenceRadiusKm = radiusKm;
   }
 
+  static void _saveToLocalStorage(Map<String, dynamic> data) {
+    try {
+      if (kIsWeb) {
+        html.window.localStorage['aquasync_station_settings'] = jsonEncode(data);
+      }
+    } catch (e) {
+      debugPrint('Note: local storage save: $e');
+    }
+  }
+
+  static Map<String, dynamic>? _loadFromLocalStorage() {
+    try {
+      if (kIsWeb) {
+        final raw = html.window.localStorage['aquasync_station_settings'];
+        if (raw != null && raw.isNotEmpty) {
+          final decoded = jsonDecode(raw);
+          if (decoded is Map) {
+            return Map<String, dynamic>.from(decoded);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Note: local storage load: $e');
+    }
+    return null;
+  }
+
   static void _applySettingsFromMap(Map<String, dynamic> map) {
-    if (map['latitude'] != null) stationLatitude = (map['latitude'] as num).toDouble();
-    if (map['longitude'] != null) stationLongitude = (map['longitude'] as num).toDouble();
+    if (map['latitude'] != null) {
+      stationLatitude = (map['latitude'] as num).toDouble();
+    } else if (map['lat'] != null) {
+      stationLatitude = (map['lat'] as num).toDouble();
+    } else if (map['station_latitude'] != null) {
+      stationLatitude = (map['station_latitude'] as num).toDouble();
+    }
+
+    if (map['longitude'] != null) {
+      stationLongitude = (map['longitude'] as num).toDouble();
+    } else if (map['lng'] != null) {
+      stationLongitude = (map['lng'] as num).toDouble();
+    } else if (map['lon'] != null) {
+      stationLongitude = (map['lon'] as num).toDouble();
+    } else if (map['station_longitude'] != null) {
+      stationLongitude = (map['station_longitude'] as num).toDouble();
+    }
+
     if (map['geofence_radius_km'] != null) {
       stationGeofenceRadiusKm = (map['geofence_radius_km'] as num).toDouble();
     } else if (map['radius_km'] != null) {
       stationGeofenceRadiusKm = (map['radius_km'] as num).toDouble();
+    } else if (map['geofence_radius'] != null) {
+      stationGeofenceRadiusKm = (map['geofence_radius'] as num).toDouble();
+    } else if (map['proximity_radius_km'] != null) {
+      stationGeofenceRadiusKm = (map['proximity_radius_km'] as num).toDouble();
+    } else if (map['perimeter_km'] != null) {
+      stationGeofenceRadiusKm = (map['perimeter_km'] as num).toDouble();
+    } else if (map['service_radius_km'] != null) {
+      stationGeofenceRadiusKm = (map['service_radius_km'] as num).toDouble();
     }
+
     if (map['station_name'] != null && map['station_name'].toString().isNotEmpty) {
       stationName = map['station_name'].toString();
+    } else if (map['name'] != null && map['name'].toString().isNotEmpty) {
+      stationName = map['name'].toString();
+    } else if (map['business_name'] != null && map['business_name'].toString().isNotEmpty) {
+      stationName = map['business_name'].toString();
     }
+
     if (map['address'] != null && map['address'].toString().isNotEmpty) {
       stationAddress = map['address'].toString();
+    } else if (map['station_address'] != null && map['station_address'].toString().isNotEmpty) {
+      stationAddress = map['station_address'].toString();
     }
-    if (map['phone'] != null && map['phone'].toString().isNotEmpty) stationPhone = map['phone'].toString();
-    if (map['hours'] != null && map['hours'].toString().isNotEmpty) stationHours = map['hours'].toString();
+
+    if (map['phone'] != null && map['phone'].toString().isNotEmpty) {
+      stationPhone = map['phone'].toString();
+    } else if (map['station_phone'] != null && map['station_phone'].toString().isNotEmpty) {
+      stationPhone = map['station_phone'].toString();
+    }
+
+    if (map['hours'] != null && map['hours'].toString().isNotEmpty) {
+      stationHours = map['hours'].toString();
+    } else if (map['station_hours'] != null && map['station_hours'].toString().isNotEmpty) {
+      stationHours = map['station_hours'].toString();
+    } else if (map['business_hours'] != null && map['business_hours'].toString().isNotEmpty) {
+      stationHours = map['business_hours'].toString();
+    }
+
     if (map['base_delivery_fee'] != null) baseDeliveryFee = (map['base_delivery_fee'] as num).toDouble();
     if (map['min_free_delivery_qty'] != null) minFreeDeliveryQty = (map['min_free_delivery_qty'] as num).toInt();
     if (map['max_driver_orders_per_trip'] != null) maxDriverOrdersPerTrip = (map['max_driver_orders_per_trip'] as num).toInt();
@@ -96,7 +170,11 @@ class SupabaseService {
     if (map['allow_cashier_driver_assign'] != null) allowCashierDriverAssign = map['allow_cashier_driver_assign'] == true || map['allow_cashier_driver_assign'].toString() == 'true';
     if (map['max_cashier_refund_limit'] != null) maxCashierRefundLimit = (map['max_cashier_refund_limit'] as num).toDouble();
     if (map['require_rfid_gallon_release'] != null) requireRfidGallonRelease = map['require_rfid_gallon_release'] == true || map['require_rfid_gallon_release'].toString() == 'true';
-    if (map['enforce_geofence_radius'] != null) enforceGeofenceRadius = map['enforce_geofence_radius'] == true || map['enforce_geofence_radius'].toString() == 'true';
+    if (map['enforce_geofence_radius'] != null) {
+      enforceGeofenceRadius = map['enforce_geofence_radius'] == true || map['enforce_geofence_radius'].toString() == 'true';
+    } else if (map['enforce_geofence'] != null) {
+      enforceGeofenceRadius = map['enforce_geofence'] == true || map['enforce_geofence'].toString() == 'true';
+    }
     if (map['enable_gcash_payment'] != null) enableGcashPayment = map['enable_gcash_payment'] == true || map['enable_gcash_payment'].toString() == 'true';
     if (map['gcash_name'] != null) gcashName = map['gcash_name'].toString();
     if (map['gcash_number'] != null) gcashNumber = map['gcash_number'].toString();
@@ -104,10 +182,59 @@ class SupabaseService {
     if (map['gcash_qr_raw_string'] != null) gcashQrRawString = map['gcash_qr_raw_string'].toString();
   }
 
-  /// Fetches station settings (location coordinates, name, address, geofence radius & operational rules) from Supabase
+  /// Fetches station settings (location coordinates, name, address, geofence radius & operational rules) from Supabase & local storage
   static Future<Map<String, dynamic>> fetchStationSettings() async {
     Map<String, dynamic> merged = {};
 
+    // 1. Priority check: system_settings key-value store (where Admin saves complete JSON config)
+    try {
+      final sysKeys = ['station_config', 'station_settings', 'business_config', 'geofence_config'];
+      for (final sysKey in sysKeys) {
+        final sysRes = await client
+            .from('system_settings')
+            .select()
+            .eq('key', sysKey)
+            .maybeSingle();
+        if (sysRes != null && sysRes['value'] is Map) {
+          final val = Map<String, dynamic>.from(sysRes['value'] as Map);
+          val.forEach((k, v) {
+            merged[k] = v;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Note: fetchStationSettings from system_settings table: $e');
+    }
+
+    // 1.5. Priority check: profiles table (where admin/owner profile stores lat, lng, radius)
+    try {
+      final adminProfile = await client
+          .from('profiles')
+          .select()
+          .or('role.eq.admin,role.eq.cashier,role.eq.owner,role.eq.station')
+          .not('latitude', 'is', null)
+          .order('updated_at', ascending: false)
+          .limit(1)
+          .maybeSingle();
+
+      if (adminProfile != null) {
+        Map<String, dynamic>.from(adminProfile).forEach((k, v) {
+          if (v != null) merged[k] = v;
+        });
+      }
+    } catch (e) {
+      debugPrint('Note: fetchStationSettings from profiles table: $e');
+    }
+
+    // 2. Priority check: local browser storage
+    final localData = _loadFromLocalStorage();
+    if (localData != null) {
+      localData.forEach((k, v) {
+        merged[k] = v;
+      });
+    }
+
+    // 3. Fallback check: station_settings table (only fill missing keys)
     try {
       final response = await client
           .from('station_settings')
@@ -116,39 +243,58 @@ class SupabaseService {
           .maybeSingle();
 
       if (response != null) {
-        merged.addAll(Map<String, dynamic>.from(response));
+        Map<String, dynamic>.from(response).forEach((k, v) {
+          merged.putIfAbsent(k, () => v);
+        });
       }
     } catch (e) {
       debugPrint('Note: fetchStationSettings from station_settings table: $e');
     }
 
-    // Secondary check: system_settings key-value store
+    // 4. Fallback check: stores / stations tables if present
     try {
-      final sysRes = await client
-          .from('system_settings')
-          .select()
-          .eq('key', 'station_config')
-          .maybeSingle();
-      if (sysRes != null && sysRes['value'] is Map) {
-        final val = Map<String, dynamic>.from(sysRes['value'] as Map);
-        val.forEach((k, v) {
+      final storeRes = await client.from('stores').select().limit(1).maybeSingle();
+      if (storeRes != null) {
+        Map<String, dynamic>.from(storeRes).forEach((k, v) {
           merged.putIfAbsent(k, () => v);
         });
       }
-    } catch (e) {
-      debugPrint('Note: fetchStationSettings from system_settings table: $e');
-    }
+    } catch (_) {}
+
+    try {
+      final stationRes = await client.from('stations').select().limit(1).maybeSingle();
+      if (stationRes != null) {
+        Map<String, dynamic>.from(stationRes).forEach((k, v) {
+          merged.putIfAbsent(k, () => v);
+        });
+      }
+    } catch (_) {}
 
     _applySettingsFromMap(merged);
 
-    return {
+    final finalMap = {
       'latitude': stationLatitude,
+      'lat': stationLatitude,
+      'station_latitude': stationLatitude,
       'longitude': stationLongitude,
+      'lng': stationLongitude,
+      'lon': stationLongitude,
+      'station_longitude': stationLongitude,
       'geofence_radius_km': stationGeofenceRadiusKm,
+      'radius_km': stationGeofenceRadiusKm,
+      'geofence_radius': stationGeofenceRadiusKm,
+      'perimeter_km': stationGeofenceRadiusKm,
+      'proximity_radius_km': stationGeofenceRadiusKm,
       'station_name': stationName,
+      'name': stationName,
+      'business_name': stationName,
       'address': stationAddress,
+      'station_address': stationAddress,
       'phone': stationPhone,
+      'station_phone': stationPhone,
       'hours': stationHours,
+      'station_hours': stationHours,
+      'business_hours': stationHours,
       'base_delivery_fee': baseDeliveryFee,
       'min_free_delivery_qty': minFreeDeliveryQty,
       'max_driver_orders_per_trip': maxDriverOrdersPerTrip,
@@ -169,15 +315,19 @@ class SupabaseService {
       'max_cashier_refund_limit': maxCashierRefundLimit,
       'require_rfid_gallon_release': requireRfidGallonRelease,
       'enforce_geofence_radius': enforceGeofenceRadius,
+      'enforce_geofence': enforceGeofenceRadius,
       'enable_gcash_payment': enableGcashPayment,
       'gcash_name': gcashName,
       'gcash_number': gcashNumber,
       'gcash_qr_image_url': gcashQrImageUrl,
       'gcash_qr_raw_string': gcashQrRawString,
     };
+
+    _saveToLocalStorage(finalMap);
+    return finalMap;
   }
 
-  /// Saves station configuration and operational parameters to Supabase database
+  /// Saves station configuration and operational parameters to local storage & Supabase database
   static Future<bool> saveStationSettings({
     required double latitude,
     required double longitude,
@@ -248,16 +398,79 @@ class SupabaseService {
     if (finalGcashQrUrl != null) gcashQrImageUrl = finalGcashQrUrl;
     if (gcashQrRaw != null) gcashQrRawString = gcashQrRaw;
 
-    bool savedInDb = false;
+    final fullSettingsMap = {
+      'latitude': stationLatitude,
+      'lat': stationLatitude,
+      'station_latitude': stationLatitude,
+      'longitude': stationLongitude,
+      'lng': stationLongitude,
+      'lon': stationLongitude,
+      'station_longitude': stationLongitude,
+      'coverage_radius_km': stationGeofenceRadiusKm,
+      'coverage_radius': stationGeofenceRadiusKm,
+      'geofence_radius_km': stationGeofenceRadiusKm,
+      'radius_km': stationGeofenceRadiusKm,
+      'geofence_radius': stationGeofenceRadiusKm,
+      'delivery_radius': stationGeofenceRadiusKm,
+      'perimeter_km': stationGeofenceRadiusKm,
+      'proximity_radius_km': stationGeofenceRadiusKm,
+      'max_distance_km': stationGeofenceRadiusKm,
+      'station_name': stationName,
+      'name': stationName,
+      'full_name': stationName,
+      'business_name': stationName,
+      'address': stationAddress,
+      'station_address': stationAddress,
+      'phone': stationPhone,
+      'station_phone': stationPhone,
+      'hours': stationHours,
+      'station_hours': stationHours,
+      'business_hours': stationHours,
+      'base_delivery_fee': baseDeliveryFee,
+      'min_free_delivery_qty': minFreeDeliveryQty,
+      'max_driver_orders_per_trip': maxDriverOrdersPerTrip,
+      'low_gallon_threshold': lowGallonThreshold,
+      'allow_cod': allowCOD,
+      'auto_assign_drivers': autoAssignDrivers,
+      'allow_debt_purchase': allowDebtPurchase,
+      'receipt_header': receiptHeader,
+      'receipt_footer': receiptFooter,
+      'auto_print_receipt': autoPrintReceipt,
+      'show_qr_on_receipt': showQrOnReceipt,
+      'new_order_sound': newOrderSound,
+      'low_stock_sound': lowStockSound,
+      'driver_emergency_sound': driverEmergencySound,
+      'auto_refresh_interval_sec': autoRefreshIntervalSec,
+      'require_admin_for_debt': requireAdminForDebt,
+      'allow_cashier_driver_assign': allowCashierDriverAssign,
+      'max_cashier_refund_limit': maxCashierRefundLimit,
+      'require_rfid_gallon_release': requireRfidGallonRelease,
+      'enforce_geofence_radius': enforceGeofenceRadius,
+      'enforce_geofence': enforceGeofenceRadius,
+      'enable_gcash_payment': enableGcashPayment,
+      'gcash_name': gcashName,
+      'gcash_number': gcashNumber,
+      'gcash_qr_image_url': gcashQrImageUrl,
+      'gcash_qr_raw_string': gcashQrRawString,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
 
-    final fullPayload = {
+    // Always persist to local browser storage first!
+    _saveToLocalStorage(fullSettingsMap);
+    bool savedInDb = true;
+
+    // Standard payload for station_settings table (matching standard columns)
+    final cleanStationPayload = {
       'id': 'main_station',
       'station_name': name,
+      'full_name': name,
       'address': address,
       'latitude': latitude,
       'longitude': longitude,
+      'coverage_radius_km': geofenceRadiusKm,
       'geofence_radius_km': geofenceRadiusKm,
       'radius_km': geofenceRadiusKm,
+      'coverage_radius': geofenceRadiusKm,
       'phone': stationPhone,
       'hours': stationHours,
       'base_delivery_fee': baseDeliveryFee,
@@ -288,36 +501,157 @@ class SupabaseService {
       'updated_at': DateTime.now().toIso8601String(),
     };
 
-    // 1. Try upserting into 'station_settings' table
+    final coreStationPayload = {
+      'station_name': name,
+      'full_name': name,
+      'name': name,
+      'address': address,
+      'latitude': latitude,
+      'longitude': longitude,
+      'coverage_radius_km': geofenceRadiusKm,
+      'geofence_radius_km': geofenceRadiusKm,
+      'radius_km': geofenceRadiusKm,
+      'geofence_radius': geofenceRadiusKm,
+      'coverage_radius': geofenceRadiusKm,
+      'enforce_geofence_radius': enforceGeofenceRadius,
+      'enforce_geofence': enforceGeofenceRadius,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+
+    // 1. Resilient save to 'station_settings' table (auto-detects existing table row ID type)
     try {
-      await client.from('station_settings').upsert(fullPayload, onConflict: 'id');
-      savedInDb = true;
-      debugPrint('Station settings saved to station_settings table in Supabase.');
+      final existing = await client.from('station_settings').select('id').limit(1).maybeSingle();
+      final payloadToSave = Map<String, dynamic>.from(cleanStationPayload);
+
+      if (existing != null && existing['id'] != null) {
+        // Retain the existing table's primary key ID (whether int, uuid, or text)
+        payloadToSave['id'] = existing['id'];
+        await client.from('station_settings').update(payloadToSave).eq('id', existing['id']);
+        debugPrint('Station settings updated in station_settings table using existing id: ${existing['id']}.');
+      } else {
+        try {
+          await client.from('station_settings').upsert(payloadToSave);
+          debugPrint('Station settings upserted into station_settings table.');
+        } catch (_) {
+          payloadToSave.remove('id');
+          await client.from('station_settings').insert(payloadToSave);
+          debugPrint('Station settings inserted into station_settings table without id.');
+        }
+      }
     } catch (e) {
-      debugPrint('Upsert to station_settings table failed ($e). Trying update...');
+      debugPrint('Note on station_settings save: $e. Proceeding with system_settings & local storage.');
+      // Fallback core update without id constraint
       try {
-        final updatePayload = Map<String, dynamic>.from(fullPayload)..remove('id');
-        await client.from('station_settings').update(updatePayload).neq('station_name', '');
-        savedInDb = true;
-        debugPrint('Station settings updated in station_settings table.');
-      } catch (e2) {
-        debugPrint('Update to station_settings table failed ($e2). Trying system_settings...');
+        await client.from('station_settings').update({
+          'station_name': name,
+          'address': address,
+          'latitude': latitude,
+          'longitude': longitude,
+          'coverage_radius_km': geofenceRadiusKm,
+          'geofence_radius_km': geofenceRadiusKm,
+          'radius_km': geofenceRadiusKm,
+          'updated_at': DateTime.now().toIso8601String(),
+        }).neq('updated_at', '1970-01-01');
+      } catch (_) {}
+    }
+
+    // 2. Upsert into 'system_settings' table under multiple key aliases
+    final sysKeys = ['station_config', 'station_settings', 'business_config', 'geofence_config'];
+    for (final sysKey in sysKeys) {
+      try {
+        final sysPayload = {
+          'key': sysKey,
+          'value': fullSettingsMap,
+          'updated_at': DateTime.now().toIso8601String(),
+        };
+        await client.from('system_settings').upsert(sysPayload, onConflict: 'key');
+        debugPrint('Station settings saved to system_settings ($sysKey) in Supabase.');
+      } catch (e) {
+        debugPrint('Upsert to system_settings ($sysKey) table failed ($e).');
       }
     }
 
-    // 2. Try upserting into 'system_settings' table
+    // 3. Sync to optional fallback tables ('stores' / 'stations' / 'business_settings') if existing
     try {
-      final sysPayload = {
-        'key': 'station_config',
-        'value': fullPayload,
+      final storePayload = {
+        'name': name,
+        'full_name': name,
+        'station_name': name,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+        'coverage_radius_km': geofenceRadiusKm,
+        'geofence_radius_km': geofenceRadiusKm,
+        'radius_km': geofenceRadiusKm,
+        'phone': stationPhone,
+        'hours': stationHours,
         'updated_at': DateTime.now().toIso8601String(),
       };
-      await client.from('system_settings').upsert(sysPayload, onConflict: 'key');
-      savedInDb = true;
-      debugPrint('Station settings saved to system_settings table in Supabase.');
-    } catch (e) {
-      debugPrint('Upsert to system_settings table failed ($e).');
+      await client.from('stores').update(storePayload).select();
+    } catch (_) {}
+
+    try {
+      final stationPayload = {
+        'name': name,
+        'full_name': name,
+        'station_name': name,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+        'coverage_radius_km': geofenceRadiusKm,
+        'geofence_radius_km': geofenceRadiusKm,
+        'radius_km': geofenceRadiusKm,
+        'phone': stationPhone,
+        'hours': stationHours,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      await client.from('stations').update(stationPayload).select();
+    } catch (_) {}
+
+    try {
+      final bizPayload = {
+        'station_name': name,
+        'full_name': name,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+        'coverage_radius_km': geofenceRadiusKm,
+        'geofence_radius_km': geofenceRadiusKm,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      await client.from('business_settings').update(bizPayload).select();
+    } catch (_) {}
+
+    // 4. Update logged in Admin/Owner/Station profile in 'profiles' table (User App fallback)
+    if (currentUser != null) {
+      try {
+        await client.from('profiles').update({
+          'latitude': latitude,
+          'longitude': longitude,
+          'coverage_radius_km': geofenceRadiusKm,
+          'geofence_radius_km': geofenceRadiusKm,
+          'radius_km': geofenceRadiusKm,
+          'station_name': name,
+          'full_name': name,
+          'address': address,
+          'updated_at': DateTime.now().toIso8601String(),
+        }).eq('id', currentUser!.id);
+      } catch (_) {}
     }
+
+    try {
+      await client.from('profiles').update({
+        'latitude': latitude,
+        'longitude': longitude,
+        'coverage_radius_km': geofenceRadiusKm,
+        'geofence_radius_km': geofenceRadiusKm,
+        'radius_km': geofenceRadiusKm,
+        'station_name': name,
+        'full_name': name,
+        'address': address,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).or('role.eq.admin,role.eq.owner,role.eq.station');
+    } catch (_) {}
 
     return savedInDb;
   }
@@ -621,24 +955,27 @@ class SupabaseService {
   /// Permanently delete a profile from public.profiles
   static Future<void> deleteProfile(String userId) async {
     try {
-      // 1. Delete associated RFID records linked to this customer
-      await client.from('rfid_qr_records').delete().eq('customer_id', userId);
-
-      // 2. Try to delete the profile record
-      await client.from('profiles').delete().eq('id', userId);
-    } catch (e) {
-      final errStr = e.toString().toLowerCase();
-      if (errStr.contains('foreign key') || errStr.contains('23503')) {
-        final nowIso = DateTime.now().toIso8601String();
-        // Fallback: archive instead of delete if the user has historical orders or deliveries
-        await client.from('profiles').update({
-          'is_archived': true,
-          'archived_at': nowIso,
-          'updated_at': nowIso,
-        }).eq('id', userId);
-        throw 'This user is linked to historical customer orders or delivery records and cannot be deleted from database history. It has been safely archived instead.';
+      // 1. Subukang gamitin ang custom cascade delete para burahin lahat kasama ang historical orders/messages
+      await client.rpc('delete_user_cascade', params: {'p_target_user_id': userId});
+    } catch (rpcError) {
+      // 2. Kung wala pa yung function o nag-error (tulad ng permission error), fallback sa standard direct delete
+      try {
+        await client.from('rfid_qr_records').delete().eq('customer_id', userId);
+        await client.from('profiles').delete().eq('id', userId);
+      } catch (e) {
+        final errStr = e.toString().toLowerCase();
+        if (errStr.contains('foreign key') || errStr.contains('23503')) {
+          final nowIso = DateTime.now().toIso8601String();
+          // Fallback: archive instead of delete if the user has historical orders or deliveries
+          await client.from('profiles').update({
+            'is_archived': true,
+            'archived_at': nowIso,
+            'updated_at': nowIso,
+          }).eq('id', userId);
+          throw 'This user is linked to historical customer orders or delivery records and cannot be deleted from database history. It has been safely archived instead.';
+        }
+        rethrow;
       }
-      rethrow;
     }
   }
 
@@ -1047,15 +1384,21 @@ class SupabaseService {
   /// Permanently delete an archived product from public.products
   static Future<void> deleteProduct(String id) async {
     try {
-      await client.from('products').delete().eq('id', id);
-    } catch (e) {
-      final errStr = e.toString().toLowerCase();
-      if (errStr.contains('foreign key') || errStr.contains('23503')) {
-        // Fallback: archive instead of delete if the product is linked to orders
-        await toggleProductActiveStatus(id: id, isActive: false);
-        throw 'This product is linked to historical customer orders and cannot be deleted from database history. It has been safely archived instead.';
+      // Subukang gamitin ang custom cascade delete na ginawa natin sa Supabase
+      await client.rpc('delete_product_cascade', params: {'p_target_product_id': id});
+    } catch (rpcError) {
+      // Kung wala pa yung function o nag-error, fallback sa standard direct delete
+      try {
+        await client.from('products').delete().eq('id', id);
+      } catch (e) {
+        final errStr = e.toString().toLowerCase();
+        if (errStr.contains('foreign key') || errStr.contains('23503')) {
+          // Fallback: archive instead of delete if the product is linked to orders
+          await toggleProductActiveStatus(id: id, isActive: false);
+          throw 'This product is linked to historical customer orders and cannot be deleted from database history. It has been safely archived instead.';
+        }
+        rethrow;
       }
-      rethrow;
     }
   }
 

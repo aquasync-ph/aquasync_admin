@@ -136,6 +136,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
   Widget _buildFilterDropdown() {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: _statusFilter,
       dropdownColor: Colors.white,
       decoration: InputDecoration(
@@ -271,97 +272,6 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
     );
   }
 
-  Widget _buildPaymentReceiptCell(DeliveryModel del) {
-    final pMethod = del.paymentMethod.toUpperCase();
-    final bool isGcash = pMethod.contains('GCASH') || 
-                         pMethod.contains('ONLINE') || 
-                         pMethod.contains('PAYMONGO') || 
-                         pMethod.contains('MAYA') || 
-                         pMethod.contains('E-WALLET');
-
-    if (!isGcash) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: const Color(0xFFCBD5E1)),
-        ),
-        child: Text(
-          del.paymentMethod.isNotEmpty ? del.paymentMethod : 'COD',
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
-        ),
-      );
-    }
-
-    final bool hasImage = del.receiptUrl.trim().isNotEmpty && 
-                          (del.receiptUrl.startsWith('http://') || del.receiptUrl.startsWith('https://'));
-
-      return InkWell(
-        onTap: () => showFullReceiptImageDialog(
-          context,
-          del.receiptUrl,
-          orderNumber: del.orderNumber,
-          referenceNumber: del.gcashReference,
-        ),
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: hasImage ? const Color(0xFF10B981).withValues(alpha: 0.15) : const Color(0xFFE0F2FE),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: hasImage ? const Color(0xFF10B981) : const Color(0xFF0284C7).withValues(alpha: 0.4),
-                    width: 1.0,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      hasImage ? Icons.image_rounded : Icons.account_balance_wallet_rounded,
-                      size: 13,
-                      color: hasImage ? const Color(0xFF059669) : const Color(0xFF0284C7),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      'GCash',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: hasImage ? const Color(0xFF059669) : const Color(0xFF0284C7),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      hasImage ? Icons.open_in_new_rounded : Icons.info_outline_rounded,
-                      size: 11,
-                      color: hasImage ? const Color(0xFF059669) : const Color(0xFF0284C7),
-                    ),
-                  ],
-                ),
-              ),
-              if (del.gcashReference.isNotEmpty) ...[
-                const SizedBox(height: 3),
-                Text(
-                  'Ref: ${del.gcashReference}',
-                  style: const TextStyle(fontSize: 10, color: Color(0xFF475569), fontWeight: FontWeight.w500),
-                ),
-              ],
-            ],
-          ),
-        ),
-      );
-
-  }
-
   Widget _buildDeliveryCard(DeliveryModel del) {
     final isHighlighted = _isDeliveryHighlighted(del);
 
@@ -405,19 +315,11 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
             ],
           ),
           const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  del.customerName,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              _buildPaymentReceiptCell(del),
-            ],
+          Text(
+            del.customerName,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Row(
@@ -765,17 +667,16 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                     child: ConstrainedBox(
                                       constraints: BoxConstraints(minWidth: constraints.maxWidth),
                                       child: DataTable(
-                                        dataRowMinHeight: 56,
-                                        dataRowMaxHeight: 62,
-                                        headingRowHeight: 52,
-                                        columnSpacing: 18,
-                                        horizontalMargin: 16,
+                                        dataRowMinHeight: 64,
+                                        dataRowMaxHeight: 76,
+                                        headingRowHeight: 60,
+                                        columnSpacing: 28,
+                                        horizontalMargin: 24,
                                         columns: const [
                                           DataColumn(label: Text('ORDER NUMBER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                                           DataColumn(label: Text('CUSTOMER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                                           DataColumn(label: Text('DRIVER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                                           DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('PAYMENT / RECEIPT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                                           DataColumn(label: Text('DISPATCHED AT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                                           DataColumn(label: Text('DELIVERED AT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                                           DataColumn(label: Text('PROOF OF DELIVERY', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
@@ -799,7 +700,6 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                                 ),
                                               ),
                                               DataCell(OrderStatusBadge(status: del.status)),
-                                              DataCell(_buildPaymentReceiptCell(del)),
                                               DataCell(Text(_formatDateTime(del.assignedAt), style: const TextStyle(fontSize: 12, color: Color(0xFF475569)))),
                                               DataCell(Text(_formatDateTime(del.deliveredAt), style: const TextStyle(fontSize: 12, color: Color(0xFF475569)))),
                                               DataCell(
@@ -841,46 +741,28 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                               ),
                                               DataCell(Padding(
                                                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 105,
-                                                      child: OutlinedButton.icon(
-                                                        icon: const Icon(Icons.pin_drop_rounded, size: 14),
-                                                        label: const Text('View Map', style: TextStyle(fontSize: 11)),
-                                                        style: OutlinedButton.styleFrom(
-                                                          foregroundColor: const Color(0xFF0284C7),
-                                                          side: const BorderSide(color: Color(0xFF0284C7)),
-                                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                child: InkWell(
+                                                  onTap: widget.onLocateCustomer != null ? () => widget.onLocateCustomer!(del) : null,
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  child: const Padding(
+                                                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF0284C7)),
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          'View Map',
+                                                          style: TextStyle(
+                                                            fontSize: 11.5,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Color(0xFF0284C7),
+                                                            decoration: TextDecoration.underline,
+                                                          ),
                                                         ),
-                                                        onPressed: widget.onLocateCustomer != null
-                                                            ? () => widget.onLocateCustomer!(del)
-                                                            : null,
-                                                      ),
+                                                      ],
                                                     ),
-                                                    if (del.receiptUrl.isNotEmpty) ...[
-                                                      const SizedBox(width: 6),
-                                                      ElevatedButton.icon(
-                                                        icon: const Icon(Icons.receipt_long_rounded, size: 14),
-                                                        label: const Text('Receipt', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: const Color(0xFF10B981),
-                                                          foregroundColor: Colors.white,
-                                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                          elevation: 1,
-                                                        ),
-                                                        onPressed: () => showFullReceiptImageDialog(
-                                                          context,
-                                                          del.receiptUrl,
-                                                          orderNumber: del.orderNumber,
-                                                          referenceNumber: del.gcashReference,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ],
+                                                  ),
                                                 ),
                                               )),
                                             ],

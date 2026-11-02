@@ -230,16 +230,22 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 12,
             children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Broadcast Announcements', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A))),
-                  SizedBox(height: 4),
-                  Text('Manage station promos, news, and maintenance alerts broadcasted in public.announcements.', style: TextStyle(fontSize: 13, color: Color(0xFF5A5E63))),
-                ],
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Broadcast Announcements', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A))),
+                    SizedBox(height: 4),
+                    Text('Manage station promos, news, and maintenance alerts broadcasted in public.announcements.', style: TextStyle(fontSize: 13, color: Color(0xFF5A5E63))),
+                  ],
+                ),
               ),
               ElevatedButton.icon(
                 onPressed: _openAddAnnouncementModal,
@@ -265,72 +271,151 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
               border: Border.all(color: const Color(0xFF0098DA).withValues(alpha: 0.3)),
               boxShadow: const [BoxShadow(color: Color(0x140B1D2A), blurRadius: 16, offset: Offset(0, 4))],
             ),
-            child: Row(
-              children: [
-                Expanded(child: _buildSearchField()),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: 180,
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _statusFilter,
-                    dropdownColor: Colors.white,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color(0xFFE6F3FA),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.0)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF5A5E63), width: 0.6)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.5)),
-                    ),
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF0B1D2A), fontWeight: FontWeight.w500),
-                    items: const [
-                      DropdownMenuItem(value: 'all', child: Text('All Statuses', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
-                      DropdownMenuItem(value: 'active', child: Text('Active Only', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
-                      DropdownMenuItem(value: 'inactive', child: Text('Inactive Only', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 680) {
+                  return Column(
+                    children: [
+                      _buildSearchField(),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              initialValue: _statusFilter,
+                              dropdownColor: Colors.white,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: const Color(0xFFE6F3FA),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.0)),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF5A5E63), width: 0.6)),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.5)),
+                              ),
+                              style: const TextStyle(fontSize: 13, color: Color(0xFF0B1D2A), fontWeight: FontWeight.w500),
+                              items: const [
+                                DropdownMenuItem(value: 'all', child: Text('All Statuses', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                                DropdownMenuItem(value: 'active', child: Text('Active Only', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                                DropdownMenuItem(value: 'inactive', child: Text('Inactive Only', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() {
+                                    _statusFilter = val;
+                                    _currentPage = 1;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              initialValue: _typeFilter,
+                              dropdownColor: Colors.white,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: const Color(0xFFE6F3FA),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.0)),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF5A5E63), width: 0.6)),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.5)),
+                              ),
+                              style: const TextStyle(fontSize: 13, color: Color(0xFF0B1D2A), fontWeight: FontWeight.w500),
+                              items: const [
+                                DropdownMenuItem(value: 'all', child: Text('All Types', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                                DropdownMenuItem(value: 'info', child: Text('General Info', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                                DropdownMenuItem(value: 'promo', child: Text('Promotional', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                                DropdownMenuItem(value: 'alert', child: Text('Alerts', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                                DropdownMenuItem(value: 'maintenance', child: Text('Maintenance', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() {
+                                    _typeFilter = val;
+                                    _currentPage = 1;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() {
-                          _statusFilter = val;
-                          _currentPage = 1;
-                        });
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: 180,
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _typeFilter,
-                    dropdownColor: Colors.white,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color(0xFFE6F3FA),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.0)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF5A5E63), width: 0.6)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.5)),
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: _buildSearchField()),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 180,
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        initialValue: _statusFilter,
+                        dropdownColor: Colors.white,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFE6F3FA),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.0)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF5A5E63), width: 0.6)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.5)),
+                        ),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF0B1D2A), fontWeight: FontWeight.w500),
+                        items: const [
+                          DropdownMenuItem(value: 'all', child: Text('All Statuses', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                          DropdownMenuItem(value: 'active', child: Text('Active Only', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                          DropdownMenuItem(value: 'inactive', child: Text('Inactive Only', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              _statusFilter = val;
+                              _currentPage = 1;
+                            });
+                          }
+                        },
+                      ),
                     ),
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF0B1D2A), fontWeight: FontWeight.w500),
-                    items: const [
-                      DropdownMenuItem(value: 'all', child: Text('All Types', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
-                      DropdownMenuItem(value: 'info', child: Text('General Info', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
-                      DropdownMenuItem(value: 'promo', child: Text('Promotional', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
-                      DropdownMenuItem(value: 'alert', child: Text('Alerts', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
-                      DropdownMenuItem(value: 'maintenance', child: Text('Maintenance', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() {
-                          _typeFilter = val;
-                          _currentPage = 1;
-                        });
-                      }
-                    },
-                  ),
-                ),
-              ],
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 180,
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        initialValue: _typeFilter,
+                        dropdownColor: Colors.white,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFE6F3FA),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.0)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF5A5E63), width: 0.6)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.5)),
+                        ),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF0B1D2A), fontWeight: FontWeight.w500),
+                        items: const [
+                          DropdownMenuItem(value: 'all', child: Text('All Types', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                          DropdownMenuItem(value: 'info', child: Text('General Info', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                          DropdownMenuItem(value: 'promo', child: Text('Promotional', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                          DropdownMenuItem(value: 'alert', child: Text('Alerts', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                          DropdownMenuItem(value: 'maintenance', child: Text('Maintenance', style: TextStyle(fontSize: 13, color: Color(0xFF0B1D2A)))),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              _typeFilter = val;
+                              _currentPage = 1;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(height: 20),

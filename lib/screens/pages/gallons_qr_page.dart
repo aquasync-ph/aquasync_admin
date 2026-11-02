@@ -361,6 +361,7 @@ class _GallonsQrPageState extends State<GallonsQrPage> {
 
   Widget _buildStatusDropdown() {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: _statusFilter,
       dropdownColor: Colors.white,
       decoration: InputDecoration(

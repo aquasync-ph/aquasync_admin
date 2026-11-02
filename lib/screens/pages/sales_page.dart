@@ -306,6 +306,7 @@ class _SalesPageState extends State<SalesPage> {
 
   Widget _buildFilterDropdown() {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: _paymentFilter,
       dropdownColor: Colors.white,
       decoration: InputDecoration(
@@ -318,9 +319,9 @@ class _SalesPageState extends State<SalesPage> {
       ),
       style: const TextStyle(fontSize: 13, color: Color(0xFF0F172A), fontWeight: FontWeight.w500),
       items: const [
-        DropdownMenuItem(value: 'all', child: Text('All Payment Types (COD & GCash)', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
-        DropdownMenuItem(value: 'cash', child: Text('Cash on Delivery (COD) Only', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
-        DropdownMenuItem(value: 'gcash', child: Text('GCash Payment Only', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
+        DropdownMenuItem(value: 'all', child: Text('All Payment Types (COD & GCash)', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
+        DropdownMenuItem(value: 'cash', child: Text('Cash on Delivery (COD) Only', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
+        DropdownMenuItem(value: 'gcash', child: Text('GCash Payment Only', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
       ],
       onChanged: (val) {
         if (val != null) {
@@ -335,6 +336,7 @@ class _SalesPageState extends State<SalesPage> {
 
   Widget _buildClassificationDropdown() {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: _classificationFilter,
       dropdownColor: Colors.white,
       decoration: InputDecoration(
@@ -347,9 +349,9 @@ class _SalesPageState extends State<SalesPage> {
       ),
       style: const TextStyle(fontSize: 13, color: Color(0xFF0F172A), fontWeight: FontWeight.w500),
       items: const [
-        DropdownMenuItem(value: 'all', child: Text('All Classifications', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
-        DropdownMenuItem(value: 'walk-in', child: Text('Walk-In Only', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
-        DropdownMenuItem(value: 'online', child: Text('Online Only', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
+        DropdownMenuItem(value: 'all', child: Text('All Classifications', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
+        DropdownMenuItem(value: 'walk-in', child: Text('Walk-In Only', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
+        DropdownMenuItem(value: 'online', child: Text('Online Only', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
       ],
       onChanged: (val) {
         if (val != null) {
@@ -364,6 +366,7 @@ class _SalesPageState extends State<SalesPage> {
 
   Widget _buildDateRangeDropdown() {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: _dateRange,
       dropdownColor: Colors.white,
       decoration: InputDecoration(
@@ -376,11 +379,11 @@ class _SalesPageState extends State<SalesPage> {
       ),
       style: const TextStyle(fontSize: 13, color: Color(0xFF0F172A), fontWeight: FontWeight.w500),
       items: const [
-        DropdownMenuItem(value: 'today', child: Text('Today', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
-        DropdownMenuItem(value: 'yesterday', child: Text('Yesterday', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
-        DropdownMenuItem(value: 'week', child: Text('Last 7 Days', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
-        DropdownMenuItem(value: 'month', child: Text('This Month', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
-        DropdownMenuItem(value: 'all', child: Text('All Time', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)))),
+        DropdownMenuItem(value: 'today', child: Text('Today', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
+        DropdownMenuItem(value: 'yesterday', child: Text('Yesterday', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
+        DropdownMenuItem(value: 'week', child: Text('Last 7 Days', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
+        DropdownMenuItem(value: 'month', child: Text('This Month', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
+        DropdownMenuItem(value: 'all', child: Text('All Time', style: TextStyle(fontSize: 13, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis)),
       ],
       onChanged: (val) {
         if (val != null) {
@@ -447,10 +450,14 @@ class _SalesPageState extends State<SalesPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHighlightBanner(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 12,
             children: [
-              Expanded(
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -460,7 +467,10 @@ class _SalesPageState extends State<SalesPage> {
                   ],
                 ),
               ),
-              Row(
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   OutlinedButton.icon(
                     onPressed: () {
@@ -479,7 +489,6 @@ class _SalesPageState extends State<SalesPage> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  const SizedBox(width: 10),
                   ElevatedButton.icon(
                     onPressed: _loadSalesData,
                     icon: const Icon(Icons.refresh_rounded, size: 16),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../widgets/status_badges.dart';
+import '../widgets/sweet_alert.dart';
 import '../services/supabase_service.dart';
+import '../utils/print_helper.dart';
 import 'proof_of_delivery_dialog.dart';
 
 void showFullReceiptImageDialog(
@@ -113,22 +115,34 @@ class _SmartReceiptImageViewerState extends State<SmartReceiptImageViewer> {
     final ref = widget.referenceNumber?.trim() ?? '';
 
     if (ord.isNotEmpty) {
-      _candidateUrls.add(SupabaseService.client.storage.from('receipts').getPublicUrl('receipts/$ord.jpg'));
-      _candidateUrls.add(SupabaseService.client.storage.from('receipts').getPublicUrl('receipts/$ord.png'));
-      _candidateUrls.add(SupabaseService.client.storage.from('user_assets').getPublicUrl('receipts/$ord.jpg'));
-      _candidateUrls.add(SupabaseService.client.storage.from('user_assets').getPublicUrl('receipts/$ord.png'));
-      _candidateUrls.add(SupabaseService.client.storage.from('receipts').getPublicUrl('$ord.jpg'));
-      _candidateUrls.add(SupabaseService.client.storage.from('receipts').getPublicUrl('$ord.png'));
-      _candidateUrls.add(SupabaseService.client.storage.from('payments').getPublicUrl('$ord.jpg'));
+      final cleanOrd = ord.replaceAll(RegExp(r'[^a-zA-Z0-9\-]'), '');
+      final numOnlyOrd = ord.replaceAll(RegExp(r'[^0-9]'), '');
+
+      for (final idToTry in [ord, cleanOrd, numOnlyOrd]) {
+        if (idToTry.isEmpty) continue;
+        for (final bucket in ['receipts', 'user_assets', 'payments', 'payment_proofs', 'proofs', 'gcash_receipts']) {
+          for (final prefix in ['', 'receipts/', 'payments/', 'gcash/']) {
+            for (final ext in ['jpg', 'png', 'jpeg', 'webp']) {
+              _candidateUrls.add(SupabaseService.client.storage.from(bucket).getPublicUrl('$prefix$idToTry.$ext'));
+            }
+          }
+        }
+      }
     }
     if (ref.isNotEmpty && ref != ord) {
-      _candidateUrls.add(SupabaseService.client.storage.from('receipts').getPublicUrl('receipts/$ref.jpg'));
-      _candidateUrls.add(SupabaseService.client.storage.from('receipts').getPublicUrl('receipts/$ref.png'));
-      _candidateUrls.add(SupabaseService.client.storage.from('user_assets').getPublicUrl('receipts/$ref.jpg'));
-      _candidateUrls.add(SupabaseService.client.storage.from('user_assets').getPublicUrl('receipts/$ref.png'));
-      _candidateUrls.add(SupabaseService.client.storage.from('receipts').getPublicUrl('$ref.jpg'));
-      _candidateUrls.add(SupabaseService.client.storage.from('receipts').getPublicUrl('$ref.png'));
-      _candidateUrls.add(SupabaseService.client.storage.from('payments').getPublicUrl('$ref.jpg'));
+      final cleanRef = ref.replaceAll(RegExp(r'[^a-zA-Z0-9\-]'), '');
+      final numOnlyRef = ref.replaceAll(RegExp(r'[^0-9]'), '');
+
+      for (final idToTry in [ref, cleanRef, numOnlyRef]) {
+        if (idToTry.isEmpty) continue;
+        for (final bucket in ['receipts', 'user_assets', 'payments', 'payment_proofs', 'proofs', 'gcash_receipts']) {
+          for (final prefix in ['', 'receipts/', 'payments/', 'gcash/']) {
+            for (final ext in ['jpg', 'png', 'jpeg', 'webp']) {
+              _candidateUrls.add(SupabaseService.client.storage.from(bucket).getPublicUrl('$prefix$idToTry.$ext'));
+            }
+          }
+        }
+      }
     }
 
     _candidateUrls = _candidateUrls.toSet().toList();
@@ -251,6 +265,7 @@ class OrderDetailsDialog extends StatefulWidget {
   final Function(String reason)? onReject;
   final VoidCallback? onAssignDriver;
   final VoidCallback? onDelete;
+  final bool isProcessing;
 
   const OrderDetailsDialog({
     super.key,
@@ -259,6 +274,7 @@ class OrderDetailsDialog extends StatefulWidget {
     this.onReject,
     this.onAssignDriver,
     this.onDelete,
+    this.isProcessing = false,
   });
 
   @override
@@ -421,14 +437,6 @@ class _OrderDetailsDialogState extends State<OrderDetailsDialog> {
         payMethod.contains('ONLINE') ||
         payMethod.contains('E-WALLET') ||
         payMethod.contains('DIGITAL');
-
-    final isCod = !isGcash && (
-        payMethod.contains('COD') ||
-        payMethod.contains('CASH') ||
-        payMethod.contains('DELIVERY') ||
-        payMethod.isEmpty ||
-        payMethod == 'CASH ON DELIVERY'
-    );
 
     final isOnline = isGcash;
 
@@ -995,12 +1003,62 @@ class _OrderDetailsDialogState extends State<OrderDetailsDialog> {
                     ),
                     child: const Text('Close', style: TextStyle(fontSize: 13, color: Color(0xFFBAE6FD), fontWeight: FontWeight.w600)),
                   ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      final List<Map<String, dynamic>> saleItems = widget.order.itemsList.isNotEmpty
+                          ? widget.order.itemsList.map((item) => {
+                              'product_name': item['name']?.toString() ?? 'Water Refill',
+                              'quantity': item['qty'] ?? widget.order.qty,
+                              'unit_price': (item['unit_price'] is num) ? (item['unit_price'] as num).toDouble() : (widget.order.qty > 0 ? (widget.order.totalAmount / widget.order.qty) : widget.order.totalAmount),
+                              'subtotal': (item['total'] is num) ? (item['total'] as num).toDouble() : widget.order.totalAmount,
+                            }).toList()
+                          : [
+                              {
+                                'product_name': 'Water Refill Container',
+                                'quantity': widget.order.qty,
+                                'unit_price': widget.order.qty > 0 ? (widget.order.totalAmount / widget.order.qty) : widget.order.totalAmount,
+                                'subtotal': widget.order.totalAmount,
+                              }
+                            ];
+
+                      final saleData = {
+                        'id': widget.order.id,
+                        'invoice_number': widget.order.displayId,
+                        'receipt_number': widget.order.displayId.replaceAll('ORD-', 'RCP-'),
+                        'customer_name': widget.order.customerName.isNotEmpty ? widget.order.customerName : widget.order.customer,
+                        'notes': widget.order.notes,
+                        'payment_method': widget.order.payment,
+                        'is_walk_in': widget.order.isWalkIn,
+                        'order_type': widget.order.orderType.isNotEmpty ? widget.order.orderType : 'Online',
+                        'classification': 'Online',
+                        'total_amount': widget.order.totalAmount,
+                        'created_at': widget.order.createdAt,
+                        'sale_items': saleItems,
+                      };
+                      PrintHelper.printReceipt(saleData);
+                      SweetAlert.showToast(
+                        'Official Invoice & Receipt sent to printer!',
+                        type: SweetAlertType.success,
+                        title: 'Printing Receipt',
+                      );
+                    },
+                    icon: const Icon(Icons.print_rounded, size: 16, color: Color(0xFF38BDF8)),
+                    label: const Text('Print Invoice', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF38BDF8))),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF0284C7)),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                   if (s == 'pending' && widget.onReject != null) ...[
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
-                      onPressed: _showRejectDialog,
-                      icon: const Icon(Icons.cancel_outlined, size: 16),
-                      label: const Text('Reject Order', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      onPressed: widget.isProcessing ? null : _showRejectDialog,
+                      icon: widget.isProcessing
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.cancel_outlined, size: 16),
+                      label: Text(widget.isProcessing ? 'Rejecting...' : 'Reject Order', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFEF4444),
                         foregroundColor: Colors.white,
@@ -1014,12 +1072,16 @@ class _OrderDetailsDialogState extends State<OrderDetailsDialog> {
                   if (s == 'pending' && widget.onApprove != null) ...[
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        widget.onApprove!();
-                      },
-                      icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
-                      label: const Text('Approve Order', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      onPressed: widget.isProcessing
+                          ? null
+                          : () {
+                              Navigator.of(context).pop();
+                              widget.onApprove!();
+                            },
+                      icon: widget.isProcessing
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.check_circle_outline_rounded, size: 16),
+                      label: Text(widget.isProcessing ? 'Approving...' : 'Approve Order', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF10B981),
                         foregroundColor: Colors.white,

@@ -205,18 +205,7 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
           resolvedDriverName = profileLookup[rawDriverId]!;
         }
 
-        return DeliveryModel(
-          id: del.id,
-          orderId: del.orderId,
-          orderNumber: del.orderNumber,
-          customerName: del.customerName,
-          driverName: resolvedDriverName,
-          status: del.status,
-          assignedAt: del.assignedAt,
-          acceptedAt: del.acceptedAt,
-          startedAt: del.startedAt,
-          deliveredAt: del.deliveredAt,
-        );
+        return del.copyWith(driverName: resolvedDriverName);
       }).toList();
 
       final deliveryMap = {for (var d in freshDeliveries) d.orderId: d};
@@ -225,6 +214,9 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
           final del = deliveryMap[order.id]!;
           if (order.driver.isEmpty && del.driverName.isNotEmpty) {
             order.driver = del.driverName;
+          }
+          if (order.proofUrl.isEmpty && del.proofUrl.isNotEmpty) {
+            order.proofUrl = del.proofUrl;
           }
           if ((order.status.toLowerCase() == 'pending' || order.status.toLowerCase() == 'confirmed') &&
               (del.status.toLowerCase() == 'assigned' || del.status.toLowerCase() == 'out_for_delivery' || del.status.toLowerCase() == 'delivered')) {
@@ -545,11 +537,17 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
   }
 
   // Action & Modal Dialog Triggers
+  final Set<String> _processingOrderIds = {};
+
   void _approveOrder(OrderItemModel order) async {
+    if (_processingOrderIds.contains(order.id)) return;
+    setState(() {
+      _processingOrderIds.add(order.id);
+    });
     try {
       await SupabaseService.updateOrderStatus(orderId: order.id, status: 'confirmed');
       _showToast('Order ${order.displayId} confirmed & approved successfully.');
-      _loadSupabaseData(silent: true);
+      await _loadSupabaseData(silent: true);
     } catch (e) {
       SweetAlert.showToast(
         'Failed to approve order: $e',
@@ -557,14 +555,24 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
         title: 'Approval Failed',
         autoDismiss: false,
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _processingOrderIds.remove(order.id);
+        });
+      }
     }
   }
 
   void _rejectOrder(OrderItemModel order, String reason) async {
+    if (_processingOrderIds.contains(order.id)) return;
+    setState(() {
+      _processingOrderIds.add(order.id);
+    });
     try {
       await SupabaseService.rejectOrder(orderId: order.id, reason: reason);
       _showToast('Order ${order.displayId} rejected. Reason recorded.');
-      _loadSupabaseData(silent: true);
+      await _loadSupabaseData(silent: true);
     } catch (e) {
       SweetAlert.showToast(
         'Failed to reject order: $e',
@@ -572,6 +580,12 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
         title: 'Rejection Failed',
         autoDismiss: false,
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _processingOrderIds.remove(order.id);
+        });
+      }
     }
   }
 
@@ -1193,6 +1207,7 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
         onReject: (reason) => _rejectOrder(order, reason),
         onAssignDriver: () => _openDriverModal(order),
         onDelete: () => _deleteOrder(order),
+        isProcessing: _processingOrderIds.contains(order.id),
       ),
     );
   }
@@ -1345,6 +1360,7 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
           orders: _orders,
           deliveries: _deliveries,
           reviews: _reviews,
+          processingOrderIds: _processingOrderIds,
           onApproveOrder: _approveOrder,
           onAssignDriver: _openDriverModal,
           onNavigate: _navigateToPage,
@@ -1353,6 +1369,7 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
         return OrdersAndDeliveriesPage(
           orders: _orders,
           deliveries: _deliveries,
+          processingOrderIds: _processingOrderIds,
           onApprove: _approveOrder,
           onReject: (order, reason) => _rejectOrder(order, reason),
           onAssignDriver: _openDriverModal,

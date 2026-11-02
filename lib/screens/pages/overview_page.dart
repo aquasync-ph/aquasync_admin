@@ -17,6 +17,7 @@ class OverviewPage extends StatelessWidget {
   final List<OrderItemModel> orders;
   final List<DeliveryModel> deliveries;
   final List<ReviewModel> reviews;
+  final Set<String> processingOrderIds;
   final Function(OrderItemModel) onApproveOrder;
   final Function(OrderItemModel) onAssignDriver;
   final Function(int) onNavigate;
@@ -37,6 +38,7 @@ class OverviewPage extends StatelessWidget {
     required this.orders,
     required this.deliveries,
     required this.reviews,
+    this.processingOrderIds = const {},
     required this.onApproveOrder,
     required this.onAssignDriver,
     required this.onNavigate,
@@ -207,10 +209,11 @@ class OverviewPage extends StatelessWidget {
     required String title,
     required String subtitle,
     required String actionLabel,
-    required VoidCallback onAction,
+    required VoidCallback? onAction,
     required Color color,
     required Color textColor,
     required IconData icon,
+    bool isLoading = false,
   }) {
     final isCompact = parentWidth < 520;
 
@@ -251,7 +254,7 @@ class OverviewPage extends StatelessWidget {
     );
 
     final actionButton = ElevatedButton(
-      onPressed: onAction,
+      onPressed: isLoading ? null : onAction,
       style: ElevatedButton.styleFrom(
         backgroundColor: textColor,
         foregroundColor: Colors.white,
@@ -259,10 +262,12 @@ class OverviewPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      child: Text(
-        actionLabel,
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-      ),
+      child: isLoading
+          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+          : Text(
+              actionLabel,
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+            ),
     );
 
     return Container(
@@ -366,16 +371,20 @@ class OverviewPage extends StatelessWidget {
                   if (pendingOrders.isNotEmpty) ...[
                     const Text('PENDING APPROVALS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Color(0xFFFCD34D))),
                     const SizedBox(height: 8),
-                    ...pendingOrders.take(3).map((o) => _buildActionRow(
-                      parentWidth: parentWidth,
-                      title: 'Order ${o.displayId}',
-                      subtitle: 'from ${o.customer} • ${o.qty} gallon(s) • ₱${o.totalAmount.toStringAsFixed(2)}',
-                      actionLabel: 'Approve Order',
-                      onAction: () => onApproveOrder(o),
-                      color: const Color(0xFFFEF3C7),
-                      textColor: const Color(0xFF92400E),
-                      icon: Icons.hourglass_top_rounded,
-                    )),
+                    ...pendingOrders.take(3).map((o) {
+                      final bool isProc = processingOrderIds.contains(o.id);
+                      return _buildActionRow(
+                        parentWidth: parentWidth,
+                        title: 'Order ${o.displayId}',
+                        subtitle: 'from ${o.customer} • ${o.qty} gallon(s) • ₱${o.totalAmount.toStringAsFixed(2)}',
+                        actionLabel: isProc ? 'Approving...' : 'Approve Order',
+                        onAction: isProc ? null : () => onApproveOrder(o),
+                        isLoading: isProc,
+                        color: const Color(0xFFFEF3C7),
+                        textColor: const Color(0xFF92400E),
+                        icon: Icons.hourglass_top_rounded,
+                      );
+                    }),
                     const SizedBox(height: 12),
                   ],
                   if (readyForAssignment.isNotEmpty) ...[

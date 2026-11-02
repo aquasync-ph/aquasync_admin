@@ -155,6 +155,8 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final maxDialogHeight = MediaQuery.of(context).size.height * 0.90;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -163,7 +165,7 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 680),
+            constraints: BoxConstraints(maxWidth: 680, maxHeight: maxDialogHeight),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: const Color(0xFA082A45),
@@ -186,38 +188,46 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: const Color(0x330284C7),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0x4038BDF8)),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: const Color(0x330284C7),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0x4038BDF8)),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF38BDF8), size: 22),
                             ),
-                            alignment: Alignment.center,
-                            child: const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF38BDF8), size: 22),
-                          ),
-                          const SizedBox(width: 12),
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Register New Customer',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Register New Customer',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    'Complete profile details & automatic map delivery pinning',
+                                    style: TextStyle(fontSize: 11, color: Color(0xFFBAE6FD)),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'Complete profile details & automatic map delivery pinning',
-                                style: TextStyle(fontSize: 11, color: Color(0xFFBAE6FD)),
-                              ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
@@ -229,142 +239,168 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
                   ),
                   Divider(height: 24, color: Colors.white.withValues(alpha: 0.18)),
 
-                  // BASIC CUSTOMER DETAILS (2 Columns on wide dialog)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  // BASIC CUSTOMER DETAILS (Responsive Column/Row)
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final nameField = Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Customer Full Name * (Max 50 chars)',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: nameCtrl,
+                            maxLength: 50,
+                            decoration: InputDecoration(
+                              hintText: 'e.g. Maria Santos',
+                              hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
+                              prefixIcon: const Icon(Icons.person_rounded, size: 18, color: Color(0xFF7DD3FC)),
+                              counterStyle: const TextStyle(fontSize: 10, color: Color(0xFF7DD3FC)),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.10),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
+                            ),
+                            style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      );
+
+                      final phoneField = Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Phone Number (11 digits)',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: phoneCtrl,
+                            maxLength: 11,
+                            keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            decoration: InputDecoration(
+                              hintText: 'e.g. 09171234567',
+                              hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
+                              prefixIcon: const Icon(Icons.phone_rounded, size: 18, color: Color(0xFF7DD3FC)),
+                              counterStyle: const TextStyle(fontSize: 10, color: Color(0xFF7DD3FC)),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.10),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
+                            ),
+                            style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      );
+
+                      if (constraints.maxWidth < 480) {
+                        return Column(
                           children: [
-                            const Text(
-                              'Customer Full Name * (Max 50 chars)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            const SizedBox(height: 5),
-                            TextField(
-                              controller: nameCtrl,
-                              maxLength: 50,
-                              decoration: InputDecoration(
-                                hintText: 'e.g. Maria Santos',
-                                hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
-                                prefixIcon: const Icon(Icons.person_rounded, size: 18, color: Color(0xFF7DD3FC)),
-                                counterStyle: const TextStyle(fontSize: 10, color: Color(0xFF7DD3FC)),
-                                filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.10),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
-                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
-                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
-                              ),
-                              style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
-                            ),
+                            nameField,
+                            const SizedBox(height: 10),
+                            phoneField,
                           ],
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Phone Number (11 digits)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            const SizedBox(height: 5),
-                            TextField(
-                              controller: phoneCtrl,
-                              maxLength: 11,
-                              keyboardType: TextInputType.phone,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              decoration: InputDecoration(
-                                hintText: 'e.g. 09171234567',
-                                hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
-                                prefixIcon: const Icon(Icons.phone_rounded, size: 18, color: Color(0xFF7DD3FC)),
-                                counterStyle: const TextStyle(fontSize: 10, color: Color(0xFF7DD3FC)),
-                                filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.10),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
-                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
-                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
-                              ),
-                              style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: nameField),
+                          const SizedBox(width: 14),
+                          Expanded(child: phoneField),
+                        ],
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 12),
 
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final emailField = Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Email Address (Optional)',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: emailCtrl,
+                            maxLength: 80,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              hintText: 'e.g. maria@gmail.com',
+                              hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
+                              prefixIcon: const Icon(Icons.email_rounded, size: 18, color: Color(0xFF7DD3FC)),
+                              counterStyle: const TextStyle(fontSize: 10, color: Color(0xFF7DD3FC)),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.10),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
+                            ),
+                            style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      );
+
+                      final rfidField = Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Loyalty RFID Card UID (Optional)',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          const SizedBox(height: 5),
+                          TextField(
+                            controller: rfidCtrl,
+                            maxLength: 30,
+                            decoration: InputDecoration(
+                              hintText: 'e.g. RFID-8829-X12',
+                              hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
+                              prefixIcon: const Icon(Icons.style_rounded, size: 18, color: Color(0xFF7DD3FC)),
+                              counterStyle: const TextStyle(fontSize: 10, color: Color(0xFF7DD3FC)),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.10),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
+                            ),
+                            style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      );
+
+                      if (constraints.maxWidth < 480) {
+                        return Column(
                           children: [
-                            const Text(
-                              'Email Address (Optional)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            const SizedBox(height: 5),
-                            TextField(
-                              controller: emailCtrl,
-                              maxLength: 80,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                hintText: 'e.g. maria@gmail.com',
-                                hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
-                                prefixIcon: const Icon(Icons.email_rounded, size: 18, color: Color(0xFF7DD3FC)),
-                                counterStyle: const TextStyle(fontSize: 10, color: Color(0xFF7DD3FC)),
-                                filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.10),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
-                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
-                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
-                              ),
-                              style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
-                            ),
+                            emailField,
+                            const SizedBox(height: 10),
+                            rfidField,
                           ],
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Loyalty RFID Card UID (Optional)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            const SizedBox(height: 5),
-                            TextField(
-                              controller: rfidCtrl,
-                              maxLength: 30,
-                              decoration: InputDecoration(
-                                hintText: 'e.g. RFID-8829-X12',
-                                hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
-                                prefixIcon: const Icon(Icons.style_rounded, size: 18, color: Color(0xFF7DD3FC)),
-                                counterStyle: const TextStyle(fontSize: 10, color: Color(0xFF7DD3FC)),
-                                filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.10),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
-                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.22))),
-                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5)),
-                              ),
-                              style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: emailField),
+                          const SizedBox(width: 14),
+                          Expanded(child: rfidField),
+                        ],
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 14),

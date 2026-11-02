@@ -90,29 +90,35 @@ class _ReviewsPageState extends State<ReviewsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 12,
             children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Customer Reviews & Driver Feedback',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Customer Reviews & Driver Feedback',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Monitor customer satisfaction and driver performance reviews submitted from user side',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF475569),
+                    SizedBox(height: 2),
+                    Text(
+                      'Monitor customer satisfaction and driver performance reviews submitted from user side',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF475569),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               OutlinedButton.icon(
                 onPressed: widget.onRefresh,

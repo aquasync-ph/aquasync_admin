@@ -209,6 +209,7 @@ class _DebtsPaymentsPageState extends State<DebtsPaymentsPage> {
 
   Widget _buildStatusDropdown() {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: _statusFilter,
       dropdownColor: Colors.white,
       decoration: InputDecoration(

@@ -459,6 +459,7 @@ class _PromosPageState extends State<PromosPage> {
                         children: [
                           Expanded(
                             child: DropdownButtonFormField<String>(
+                              isExpanded: true,
                               initialValue: _statusFilter,
                               dropdownColor: Colors.white,
                               decoration: InputDecoration(
@@ -515,6 +516,7 @@ class _PromosPageState extends State<PromosPage> {
                     SizedBox(
                       width: 180,
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: _statusFilter,
                         dropdownColor: Colors.white,
                         decoration: InputDecoration(

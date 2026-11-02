@@ -6,6 +6,7 @@ import '../../dialogs/order_details_dialog.dart';
 
 class OrdersPage extends StatefulWidget {
   final List<OrderItemModel> orders;
+  final Set<String> processingOrderIds;
   final Function(OrderItemModel) onApprove;
   final Function(OrderItemModel, String)? onReject;
   final Function(OrderItemModel) onAssignDriver;
@@ -19,6 +20,7 @@ class OrdersPage extends StatefulWidget {
   const OrdersPage({
     super.key,
     required this.orders,
+    this.processingOrderIds = const {},
     required this.onApprove,
     this.onReject,
     required this.onAssignDriver,
@@ -408,6 +410,7 @@ class _OrdersPageState extends State<OrdersPage> {
 
   Widget _buildOrderActionButtons(OrderItemModel order) {
     final status = order.status.toLowerCase();
+    final bool isLoading = widget.processingOrderIds.contains(order.id);
 
     Widget mainButton;
     if (status == 'pending') {
@@ -415,9 +418,11 @@ class _OrdersPageState extends State<OrdersPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ElevatedButton.icon(
-            onPressed: () => widget.onApprove(order),
-            icon: const Icon(Icons.check_circle_outline_rounded, size: 14),
-            label: const Text('Approve', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            onPressed: isLoading ? null : () => widget.onApprove(order),
+            icon: isLoading
+                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Icon(Icons.check_circle_outline_rounded, size: 14),
+            label: Text(isLoading ? 'Approving...' : 'Approve', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981),
               foregroundColor: Colors.white,
@@ -429,9 +434,11 @@ class _OrdersPageState extends State<OrdersPage> {
           ),
           const SizedBox(width: 6),
           ElevatedButton.icon(
-            onPressed: () => _showRejectDialog(order),
-            icon: const Icon(Icons.cancel_outlined, size: 14),
-            label: const Text('Reject', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            onPressed: isLoading ? null : () => _showRejectDialog(order),
+            icon: isLoading
+                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Icon(Icons.cancel_outlined, size: 14),
+            label: Text(isLoading ? 'Rejecting...' : 'Reject', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
@@ -445,8 +452,10 @@ class _OrdersPageState extends State<OrdersPage> {
       );
     } else if (status == 'confirmed') {
       mainButton = ElevatedButton.icon(
-        onPressed: () => widget.onAssignDriver(order),
-        icon: const Icon(Icons.motorcycle_rounded, size: 14),
+        onPressed: isLoading ? null : () => widget.onAssignDriver(order),
+        icon: isLoading
+            ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : const Icon(Icons.motorcycle_rounded, size: 14),
         label: const Text('Dispatch Driver', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF3B82F6),
@@ -806,7 +815,31 @@ class _OrdersPageState extends State<OrdersPage> {
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                if (constraints.maxWidth < 1080) {
+                if (constraints.maxWidth < 640) {
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(child: _buildSearchField()),
+                          const SizedBox(width: 8),
+                          viewToggleWidget,
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(child: _buildStatusDropdown()),
+                          const SizedBox(width: 8),
+                          Expanded(child: _buildPaymentDropdown()),
+                        ],
+                      ),
+                      if (authorizeCashiersBtn != null) ...[
+                        const SizedBox(height: 10),
+                        SizedBox(width: double.infinity, child: authorizeCashiersBtn),
+                      ],
+                    ],
+                  );
+                } else if (constraints.maxWidth < 1080) {
                   return Column(
                     children: [
                       Row(
@@ -907,10 +940,11 @@ class _OrdersPageState extends State<OrdersPage> {
                                     child: ConstrainedBox(
                                       constraints: BoxConstraints(minWidth: constraints.maxWidth),
                                       child: DataTable(
-                                        dataRowMinHeight: 62,
-                                        dataRowMaxHeight: 68,
+                                        dataRowMinHeight: 68,
+                                        dataRowMaxHeight: 76,
                                         headingRowHeight: 56,
                                         columnSpacing: 24,
+                                        horizontalMargin: 20,
                                         columns: const [
                                           DataColumn(label: Text('ORDER NUMBER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                                           DataColumn(label: Text('CUSTOMER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
@@ -937,7 +971,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                                       child: Text(
                                                         order.displayId,
                                                         style: const TextStyle(
-                                                          fontSize: 13,
+                                                          fontSize: 13.5,
                                                           color: Color(0xFF0284C7),
                                                           fontWeight: FontWeight.bold,
                                                           decoration: TextDecoration.underline,
@@ -949,24 +983,47 @@ class _OrdersPageState extends State<OrdersPage> {
                                               ),
                                               DataCell(Padding(
                                                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: Text(order.customer, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                                                child: Text(order.customer, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
                                               )),
                                               DataCell(Padding(
                                                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                                                 child: SizedBox(
-                                                  width: 140,
-                                                  child: OutlinedButton.icon(
-                                                    icon: const Icon(Icons.pin_drop_rounded, size: 16),
-                                                    label: const Text('View Map', style: TextStyle(fontSize: 12)),
-                                                    style: OutlinedButton.styleFrom(
-                                                      foregroundColor: const Color(0xFF0284C7),
-                                                      side: const BorderSide(color: Color(0xFF0284C7)),
-                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                    ),
-                                                    onPressed: widget.onLocateCustomer != null
-                                                        ? () => widget.onLocateCustomer!(order)
-                                                        : null,
+                                                  width: 170,
+                                                  child: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        order.address.isEmpty ? 'No address specified' : order.address,
+                                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                      const SizedBox(height: 3),
+                                                      InkWell(
+                                                        onTap: widget.onLocateCustomer != null ? () => widget.onLocateCustomer!(order) : null,
+                                                        borderRadius: BorderRadius.circular(4),
+                                                        child: const Padding(
+                                                          padding: EdgeInsets.symmetric(vertical: 2.0),
+                                                          child: Row(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF0284C7)),
+                                                              SizedBox(width: 3),
+                                                              Text(
+                                                                'View Map',
+                                                                style: TextStyle(
+                                                                  fontSize: 11.5,
+                                                                  fontWeight: FontWeight.bold,
+                                                                  color: Color(0xFF0284C7),
+                                                                  decoration: TextDecoration.underline,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               )),
