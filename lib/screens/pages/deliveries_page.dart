@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../models/models.dart';
 import '../../widgets/widgets.dart';
-import '../../dialogs/order_details_dialog.dart';
 import '../../dialogs/proof_of_delivery_dialog.dart';
 
 class DeliveriesPage extends StatefulWidget {
@@ -498,33 +497,63 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
     Widget summaryStrip = LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth >= 1000) {
+        if (constraints.maxWidth >= 950) {
           return Row(
             children: [
-              Expanded(child: _buildSummaryCard(label: 'Total Dispatches', value: '$totalCount', icon: Icons.local_shipping_outlined, color: const Color(0xFF38BDF8))),
+              Expanded(
+                child: _buildSummaryCard(label: 'Total Dispatches', value: '$totalCount', icon: Icons.local_shipping_outlined, color: const Color(0xFF38BDF8)),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _buildSummaryCard(label: 'Driver Assigned', value: '$assignedCount', icon: Icons.badge_outlined, color: const Color(0xFF7DD3FC))),
+              Expanded(
+                child: _buildSummaryCard(label: 'Driver Assigned', value: '$assignedCount', icon: Icons.badge_outlined, color: const Color(0xFF7DD3FC)),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _buildSummaryCard(label: 'In Transit', value: '$inTransitCount', icon: Icons.directions_run_rounded, color: const Color(0xFFFCD34D))),
+              Expanded(
+                child: _buildSummaryCard(label: 'In Transit', value: '$inTransitCount', icon: Icons.directions_run_rounded, color: const Color(0xFFFCD34D)),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _buildSummaryCard(label: 'Delivered', value: '$deliveredCount', icon: Icons.task_alt_rounded, color: const Color(0xFF34D399))),
+              Expanded(
+                child: _buildSummaryCard(label: 'Delivered', value: '$deliveredCount', icon: Icons.task_alt_rounded, color: const Color(0xFF34D399)),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _buildSummaryCard(label: 'Cancelled', value: '$cancelledCount', icon: Icons.cancel_outlined, color: const Color(0xFFF87171))),
-            ],
-          );
-        } else {
-          return Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'Total', value: '$totalCount', icon: Icons.local_shipping_outlined, color: const Color(0xFF38BDF8))),
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'Assigned', value: '$assignedCount', icon: Icons.badge_outlined, color: const Color(0xFF7DD3FC))),
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'In Transit', value: '$inTransitCount', icon: Icons.directions_run_rounded, color: const Color(0xFFFCD34D))),
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'Delivered', value: '$deliveredCount', icon: Icons.task_alt_rounded, color: const Color(0xFF34D399))),
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'Cancelled', value: '$cancelledCount', icon: Icons.cancel_outlined, color: const Color(0xFFF87171))),
+              Expanded(
+                child: _buildSummaryCard(label: 'Cancelled', value: '$cancelledCount', icon: Icons.cancel_outlined, color: const Color(0xFFF87171)),
+              ),
             ],
           );
         }
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 220,
+                child: _buildSummaryCard(label: 'Total Dispatches', value: '$totalCount', icon: Icons.local_shipping_outlined, color: const Color(0xFF38BDF8)),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 220,
+                child: _buildSummaryCard(label: 'Driver Assigned', value: '$assignedCount', icon: Icons.badge_outlined, color: const Color(0xFF7DD3FC)),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 220,
+                child: _buildSummaryCard(label: 'In Transit', value: '$inTransitCount', icon: Icons.directions_run_rounded, color: const Color(0xFFFCD34D)),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 220,
+                child: _buildSummaryCard(label: 'Delivered', value: '$deliveredCount', icon: Icons.task_alt_rounded, color: const Color(0xFF34D399)),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 220,
+                child: _buildSummaryCard(label: 'Cancelled', value: '$cancelledCount', icon: Icons.cancel_outlined, color: const Color(0xFFF87171)),
+              ),
+            ],
+          ),
+        );
       },
     );
 
@@ -553,7 +582,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
       ),
     );
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -599,185 +628,174 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
             ),
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: filtered.isEmpty
-                ? Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
-                      boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
+          filtered.isEmpty
+              ? Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
+                    boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
+                  ),
+                  padding: const EdgeInsets.all(40),
+                  child: const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.local_shipping_outlined, size: 44, color: Color(0xFF0284C7)),
+                        SizedBox(height: 12),
+                        Text('No dispatches found.', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                        SizedBox(height: 4),
+                        Text('Dispatched orders will appear here automatically via Realtime.', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                      ],
                     ),
-                    padding: const EdgeInsets.all(40),
-                    child: const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.local_shipping_outlined, size: 44, color: Color(0xFF0284C7)),
-                          SizedBox(height: 12),
-                          Text('No dispatches found.', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                          SizedBox(height: 4),
-                          Text('Dispatched orders will appear here automatically via Realtime.', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
-                        ],
+                  ),
+                )
+              : _isGridView
+                  ? LayoutBuilder(
+                      builder: (context, constraints) {
+                        int crossAxisCount = 3;
+                        if (constraints.maxWidth < 700) {
+                          crossAxisCount = 1;
+                        } else if (constraints.maxWidth < 1100) {
+                          crossAxisCount = 2;
+                        }
+                        return GridView.builder(
+                          itemCount: paginated.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            mainAxisExtent: 240,
+                          ),
+                          itemBuilder: (context, index) => _buildDeliveryCard(paginated[index]),
+                        );
+                      },
+                    )
+                  : Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
+                        boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
                       ),
-                    ),
-                  )
-                : _isGridView
-                    ? LayoutBuilder(
-                        builder: (context, constraints) {
-                          int crossAxisCount = 3;
-                          if (constraints.maxWidth < 700) {
-                            crossAxisCount = 1;
-                          } else if (constraints.maxWidth < 1100) {
-                            crossAxisCount = 2;
-                          }
-                          return GridView.builder(
-                            itemCount: paginated.length,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: crossAxisCount,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              mainAxisExtent: 240,
-                            ),
-                            itemBuilder: (context, index) => _buildDeliveryCard(paginated[index]),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
-                          boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
-                        ),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SizedBox(
-                              width: constraints.maxWidth,
-                              height: constraints.maxHeight,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                      child: DataTable(
-                                        dataRowMinHeight: 64,
-                                        dataRowMaxHeight: 76,
-                                        headingRowHeight: 60,
-                                        columnSpacing: 28,
-                                        horizontalMargin: 24,
-                                        columns: const [
-                                          DataColumn(label: Text('ORDER NUMBER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('CUSTOMER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('DRIVER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('DISPATCHED AT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('DELIVERED AT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('PROOF OF DELIVERY', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                        ],
-                                        rows: paginated.map((del) {
-                                          final isHighlighted = _isDeliveryHighlighted(del);
-                                          return animatedDataRow(
-                                            isHighlighted: isHighlighted,
-                                            cells: [
-                                              DataCell(Text(del.orderNumber, style: const TextStyle(fontSize: 13, color: Color(0xFF0284C7), fontWeight: FontWeight.bold))),
-                                              DataCell(Text(del.customerName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)))),
-                                              DataCell(
-                                                Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    const Icon(Icons.badge_outlined, size: 16, color: Color(0xFF0284C7)),
-                                                    const SizedBox(width: 6),
-                                                    Text(del.driverName.isEmpty ? 'Unassigned' : del.driverName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                                                  ],
-                                                ),
-                                              ),
-                                              DataCell(OrderStatusBadge(status: del.status)),
-                                              DataCell(Text(_formatDateTime(del.assignedAt), style: const TextStyle(fontSize: 12, color: Color(0xFF475569)))),
-                                              DataCell(Text(_formatDateTime(del.deliveredAt), style: const TextStyle(fontSize: 12, color: Color(0xFF475569)))),
-                                              DataCell(
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 6.0),
-                                                  child: del.proofUrl.isNotEmpty
-                                                      ? ElevatedButton.icon(
-                                                          icon: const Icon(Icons.verified_rounded, size: 14),
-                                                          label: const Text('View Proof', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: const Color(0xFF10B981),
-                                                            foregroundColor: Colors.white,
-                                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            elevation: 1,
-                                                          ),
-                                                          onPressed: () => showProofOfDeliveryDialog(context, del, onProofUpdated: () => setState(() {})),
-                                                        )
-                                                      : OutlinedButton.icon(
-                                                          icon: Icon(
-                                                            del.status.toLowerCase() == 'delivered' ? Icons.camera_alt_outlined : Icons.timer_outlined,
-                                                            size: 14,
-                                                          ),
-                                                          label: Text(
-                                                            del.status.toLowerCase() == 'delivered' ? 'View Proof' : 'No Proof Yet',
-                                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                                                          ),
-                                                          style: OutlinedButton.styleFrom(
-                                                            foregroundColor: del.status.toLowerCase() == 'delivered' ? const Color(0xFF0284C7) : const Color(0xFF64748B),
-                                                            side: BorderSide(
-                                                              color: del.status.toLowerCase() == 'delivered' ? const Color(0xFF0284C7) : const Color(0xFFCBD5E1),
-                                                            ),
-                                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                          ),
-                                                          onPressed: () => showProofOfDeliveryDialog(context, del, onProofUpdated: () => setState(() {})),
-                                                        ),
-                                                ),
-                                              ),
-                                              DataCell(Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: InkWell(
-                                                  onTap: widget.onLocateCustomer != null ? () => widget.onLocateCustomer!(del) : null,
-                                                  borderRadius: BorderRadius.circular(4),
-                                                  child: const Padding(
-                                                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                                                    child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF0284C7)),
-                                                        SizedBox(width: 4),
-                                                        Text(
-                                                          'View Map',
-                                                          style: TextStyle(
-                                                            fontSize: 11.5,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Color(0xFF0284C7),
-                                                            decoration: TextDecoration.underline,
-                                                          ),
-                                                        ),
-                                                      ],
+                      child: LayoutBuilder(
+                        builder: (context, tableConstraints) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: tableConstraints.maxWidth),
+                              child: DataTable(
+                                dataRowMinHeight: 64,
+                                dataRowMaxHeight: 76,
+                                headingRowHeight: 60,
+                                columnSpacing: 28,
+                                horizontalMargin: 24,
+                                columns: const [
+                                  DataColumn(label: Text('ORDER NUMBER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('CUSTOMER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('DRIVER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('DISPATCHED AT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('DELIVERED AT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('PROOF OF DELIVERY', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                ],
+                                rows: paginated.map((del) {
+                                  final isHighlighted = _isDeliveryHighlighted(del);
+                                  return animatedDataRow(
+                                    isHighlighted: isHighlighted,
+                                    cells: [
+                                      DataCell(Text(del.orderNumber, style: const TextStyle(fontSize: 13, color: Color(0xFF0284C7), fontWeight: FontWeight.bold))),
+                                      DataCell(Text(del.customerName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)))),
+                                      DataCell(
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.badge_outlined, size: 16, color: Color(0xFF0284C7)),
+                                            const SizedBox(width: 6),
+                                            Text(del.driverName.isEmpty ? 'Unassigned' : del.driverName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                                          ],
+                                        ),
+                                      ),
+                                      DataCell(OrderStatusBadge(status: del.status)),
+                                      DataCell(Text(_formatDateTime(del.assignedAt), style: const TextStyle(fontSize: 12, color: Color(0xFF475569)))),
+                                      DataCell(Text(_formatDateTime(del.deliveredAt), style: const TextStyle(fontSize: 12, color: Color(0xFF475569)))),
+                                      DataCell(
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 6.0),
+                                          child: del.proofUrl.isNotEmpty
+                                              ? ElevatedButton.icon(
+                                                  icon: const Icon(Icons.verified_rounded, size: 14),
+                                                  label: const Text('View Proof', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFF10B981),
+                                                    foregroundColor: Colors.white,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                    elevation: 1,
+                                                  ),
+                                                  onPressed: () => showProofOfDeliveryDialog(context, del, onProofUpdated: () => setState(() {})),
+                                                )
+                                              : OutlinedButton.icon(
+                                                  icon: Icon(
+                                                    del.status.toLowerCase() == 'delivered' ? Icons.camera_alt_outlined : Icons.timer_outlined,
+                                                    size: 14,
+                                                  ),
+                                                  label: Text(
+                                                    del.status.toLowerCase() == 'delivered' ? 'View Proof' : 'No Proof Yet',
+                                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                                                  ),
+                                                  style: OutlinedButton.styleFrom(
+                                                    foregroundColor: del.status.toLowerCase() == 'delivered' ? const Color(0xFF0284C7) : const Color(0xFF64748B),
+                                                    side: BorderSide(
+                                                      color: del.status.toLowerCase() == 'delivered' ? const Color(0xFF0284C7) : const Color(0xFFCBD5E1),
                                                     ),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                  ),
+                                                  onPressed: () => showProofOfDeliveryDialog(context, del, onProofUpdated: () => setState(() {})),
+                                                ),
+                                        ),
+                                      ),
+                                      DataCell(Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: InkWell(
+                                          onTap: widget.onLocateCustomer != null ? () => widget.onLocateCustomer!(del) : null,
+                                          borderRadius: BorderRadius.circular(4),
+                                          child: const Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF0284C7)),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  'View Map',
+                                                  style: TextStyle(
+                                                    fontSize: 11.5,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(0xFF0284C7),
+                                                    decoration: TextDecoration.underline,
                                                   ),
                                                 ),
-                                              )),
-                                            ],
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )),
+                                    ],
+                                  );
+                                }).toList(),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       ),
-          ),
+                    ),
           if (filtered.isNotEmpty) ...[
             const SizedBox(height: 12),
             AppPaginationControls(

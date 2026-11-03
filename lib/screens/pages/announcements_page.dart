@@ -225,42 +225,11 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
             (startIndex + _itemsPerPage).clamp(0, filteredList.length),
           );
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 16,
-            runSpacing: 12,
-            children: [
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Broadcast Announcements', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A))),
-                    SizedBox(height: 4),
-                    Text('Manage station promos, news, and maintenance alerts broadcasted in public.announcements.', style: TextStyle(fontSize: 13, color: Color(0xFF5A5E63))),
-                  ],
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: _openAddAnnouncementModal,
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Create Announcement', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0098DA),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
           summaryStrip,
           const SizedBox(height: 20),
           Container(
@@ -273,7 +242,19 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                if (constraints.maxWidth < 680) {
+                final createBtn = ElevatedButton.icon(
+                  onPressed: _openAddAnnouncementModal,
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: const Text('Create Announcement', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0098DA),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                );
+
+                if (constraints.maxWidth < 950) {
                   return Column(
                     children: [
                       _buildSearchField(),
@@ -341,6 +322,8 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                               },
                             ),
                           ),
+                          const SizedBox(width: 10),
+                          createBtn,
                         ],
                       ),
                     ],
@@ -351,7 +334,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                     Expanded(child: _buildSearchField()),
                     const SizedBox(width: 12),
                     SizedBox(
-                      width: 180,
+                      width: 160,
                       child: DropdownButtonFormField<String>(
                         isExpanded: true,
                         initialValue: _statusFilter,
@@ -380,9 +363,9 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     SizedBox(
-                      width: 180,
+                      width: 160,
                       child: DropdownButtonFormField<String>(
                         isExpanded: true,
                         initialValue: _typeFilter,
@@ -413,191 +396,182 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                         },
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    createBtn,
                   ],
                 );
               },
             ),
           ),
           const SizedBox(height: 20),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF0098DA).withValues(alpha: 0.3)),
-                boxShadow: const [BoxShadow(color: Color(0x140B1D2A), blurRadius: 16, offset: Offset(0, 4))],
-              ),
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: Color(0xFF0098DA)))
-                  : filteredList.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(40),
-                          child: Center(child: Text('No broadcast announcements found matching filter.', style: TextStyle(fontSize: 13, color: Color(0xFF5A5E63)))),
-                        )
-                      : LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SizedBox(
-                              width: constraints.maxWidth,
-                              height: constraints.maxHeight,
-                              child: ClipRect(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                      child: DataTable(
-                                        dataRowMinHeight: 54,
-                                        dataRowMaxHeight: 58,
-                                        headingRowHeight: 50,
-                                        columnSpacing: 20,
-                                        columns: const [
-                                          DataColumn(label: Text('ANNOUNCEMENT TITLE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('BROADCAST TYPE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('MESSAGE CONTENT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('SCHEDULE (START - END)', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('DATE CREATED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                        ],
-                                            rows: paginatedList.map((ann) {
-                                              Color typeBg = const Color(0x330098DA);
-                                              Color typeFg = const Color(0xFF0098DA);
-                                              if (ann.type == 'promo') {
-                                                typeBg = const Color(0x339333EA);
-                                                typeFg = const Color(0xFF9333EA);
-                                              } else if (ann.type == 'alert') {
-                                                typeBg = const Color(0x33DC2626);
-                                                typeFg = const Color(0xFFDC2626);
-                                              } else if (ann.type == 'maintenance') {
-                                                typeBg = const Color(0x33D97706);
-                                                typeFg = const Color(0xFFD97706);
-                                              }
-
-                                              final now = DateTime.now();
-                                              String statusText = 'INACTIVE';
-                                              Color statusBg = const Color(0xFFF1F5F9);
-                                              Color statusFg = const Color(0xFF5A5E63);
-
-                                              if (!ann.isActive) {
-                                                statusText = 'INACTIVE';
-                                                statusBg = const Color(0xFFF1F5F9);
-                                                statusFg = const Color(0xFF5A5E63);
-                                              } else if (ann.startsAt != null && now.isBefore(ann.startsAt!)) {
-                                                statusText = 'SCHEDULED';
-                                                statusBg = const Color(0xFFFEF3C7);
-                                                statusFg = const Color(0xFF92400E);
-                                              } else if (ann.endsAt != null && now.isAfter(ann.endsAt!)) {
-                                                statusText = 'EXPIRED';
-                                                statusBg = const Color(0xFFFEE2E2);
-                                                statusFg = const Color(0xFF991B1B);
-                                              } else {
-                                                statusText = 'ACTIVE';
-                                                statusBg = const Color(0xFFDCFCE7);
-                                                statusFg = const Color(0xFF166534);
-                                              }
-
-                                              String formatDt(DateTime dt) {
-                                                String two(int n) => n.toString().padLeft(2, '0');
-                                                return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}';
-                                              }
-
-                                              final startText = ann.startsAt != null ? formatDt(ann.startsAt!) : 'Immediate';
-                                              final endText = ann.endsAt != null ? formatDt(ann.endsAt!) : 'No Expiry';
-
-                                              return DataRow(
-                                                cells: [
-                                                  DataCell(Text(ann.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                                  DataCell(Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                                    decoration: BoxDecoration(color: typeBg, borderRadius: BorderRadius.circular(999)),
-                                                    child: Text(ann.type.toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: typeFg)),
-                                                  )),
-                                                  DataCell(SizedBox(
-                                                    width: 220,
-                                                    child: Text(
-                                                      ann.message,
-                                                      maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: const TextStyle(fontSize: 12, color: Color(0xFF5A5E63)),
-                                                    ),
-                                                  )),
-                                                  DataCell(Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text('Start: $startText', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0B1D2A))),
-                                                      Text('End: $endText', style: const TextStyle(fontSize: 11, color: Color(0xFF5A5E63))),
-                                                    ],
-                                                  )),
-                                                  DataCell(Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                                    decoration: BoxDecoration(
-                                                      color: statusBg,
-                                                      borderRadius: BorderRadius.circular(999),
-                                                    ),
-                                                    child: Text(
-                                                      statusText,
-                                                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusFg),
-                                                    ),
-                                                  )),
-                                                  DataCell(Text(ann.createdAt, style: const TextStyle(fontSize: 11, color: Color(0xFF5A5E63)))),
-                                                  DataCell(Row(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      ElevatedButton.icon(
-                                                        onPressed: () => _toggleActiveStatus(ann),
-                                                        icon: Icon(ann.isActive ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded, size: 14),
-                                                        label: Text(ann.isActive ? 'Deactivate' : 'Activate', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: ann.isActive ? const Color(0xFFFEF3C7) : const Color(0xFFDCFCE7),
-                                                          foregroundColor: ann.isActive ? const Color(0xFF92400E) : const Color(0xFF166534),
-                                                          elevation: 0,
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 6),
-                                                      ElevatedButton.icon(
-                                                        onPressed: () => _openEditAnnouncementModal(ann),
-                                                        icon: const Icon(Icons.edit_rounded, size: 14),
-                                                        label: const Text('Edit', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: const Color(0xFF0098DA),
-                                                          foregroundColor: Colors.white,
-                                                          elevation: 0,
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 6),
-                                                      ElevatedButton.icon(
-                                                        onPressed: () => _confirmDeleteAnnouncement(ann),
-                                                        icon: const Icon(Icons.delete_forever_rounded, size: 14),
-                                                        label: const Text('Delete', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: const Color(0xFFDC2626),
-                                                          foregroundColor: Colors.white,
-                                                          elevation: 0,
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )),
-                                                ],
-                                              );
-                                            }).toList(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF0098DA).withValues(alpha: 0.3)),
+              boxShadow: const [BoxShadow(color: Color(0x140B1D2A), blurRadius: 16, offset: Offset(0, 4))],
             ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFF0098DA)))
+                : filteredList.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(40),
+                        child: Center(child: Text('No broadcast announcements found matching filter.', style: TextStyle(fontSize: 13, color: Color(0xFF5A5E63)))),
+                      )
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: DataTable(
+                                dataRowMinHeight: 54,
+                                dataRowMaxHeight: 58,
+                                headingRowHeight: 50,
+                                columnSpacing: 20,
+                                columns: const [
+                                  DataColumn(label: Text('ANNOUNCEMENT TITLE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('BROADCAST TYPE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('MESSAGE CONTENT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('SCHEDULE (START - END)', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('DATE CREATED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                ],
+                                rows: paginatedList.map((ann) {
+                                  Color typeBg = const Color(0x330098DA);
+                                  Color typeFg = const Color(0xFF0098DA);
+                                  if (ann.type == 'promo') {
+                                    typeBg = const Color(0x339333EA);
+                                    typeFg = const Color(0xFF9333EA);
+                                  } else if (ann.type == 'alert') {
+                                    typeBg = const Color(0x33DC2626);
+                                    typeFg = const Color(0xFFDC2626);
+                                  } else if (ann.type == 'maintenance') {
+                                    typeBg = const Color(0x33D97706);
+                                    typeFg = const Color(0xFFD97706);
+                                  }
+
+                                  final now = DateTime.now();
+                                  String statusText = 'INACTIVE';
+                                  Color statusBg = const Color(0xFFF1F5F9);
+                                  Color statusFg = const Color(0xFF5A5E63);
+
+                                  if (!ann.isActive) {
+                                    statusText = 'INACTIVE';
+                                    statusBg = const Color(0xFFF1F5F9);
+                                    statusFg = const Color(0xFF5A5E63);
+                                  } else if (ann.startsAt != null && now.isBefore(ann.startsAt!)) {
+                                    statusText = 'SCHEDULED';
+                                    statusBg = const Color(0xFFFEF3C7);
+                                    statusFg = const Color(0xFF92400E);
+                                  } else if (ann.endsAt != null && now.isAfter(ann.endsAt!)) {
+                                    statusText = 'EXPIRED';
+                                    statusBg = const Color(0xFFFEE2E2);
+                                    statusFg = const Color(0xFF991B1B);
+                                  } else {
+                                    statusText = 'ACTIVE';
+                                    statusBg = const Color(0xFFDCFCE7);
+                                    statusFg = const Color(0xFF166534);
+                                  }
+
+                                  String formatDt(DateTime dt) {
+                                    String two(int n) => n.toString().padLeft(2, '0');
+                                    return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}';
+                                  }
+
+                                  final startText = ann.startsAt != null ? formatDt(ann.startsAt!) : 'Immediate';
+                                  final endText = ann.endsAt != null ? formatDt(ann.endsAt!) : 'No Expiry';
+
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(Text(ann.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                      DataCell(Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(color: typeBg, borderRadius: BorderRadius.circular(999)),
+                                        child: Text(ann.type.toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: typeFg)),
+                                      )),
+                                      DataCell(SizedBox(
+                                        width: 220,
+                                        child: Text(
+                                          ann.message,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 12, color: Color(0xFF5A5E63)),
+                                        ),
+                                      )),
+                                      DataCell(Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Start: $startText', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0B1D2A))),
+                                          Text('End: $endText', style: const TextStyle(fontSize: 11, color: Color(0xFF5A5E63))),
+                                        ],
+                                      )),
+                                      DataCell(Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: statusBg,
+                                          borderRadius: BorderRadius.circular(999),
+                                        ),
+                                        child: Text(
+                                          statusText,
+                                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusFg),
+                                        ),
+                                      )),
+                                      DataCell(Text(ann.createdAt, style: const TextStyle(fontSize: 11, color: Color(0xFF5A5E63)))),
+                                      DataCell(Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ElevatedButton.icon(
+                                            onPressed: () => _toggleActiveStatus(ann),
+                                            icon: Icon(ann.isActive ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded, size: 14),
+                                            label: Text(ann.isActive ? 'Deactivate' : 'Activate', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: ann.isActive ? const Color(0xFFFEF3C7) : const Color(0xFFDCFCE7),
+                                              foregroundColor: ann.isActive ? const Color(0xFF92400E) : const Color(0xFF166534),
+                                              elevation: 0,
+                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          ElevatedButton.icon(
+                                            onPressed: () => _openEditAnnouncementModal(ann),
+                                            icon: const Icon(Icons.edit_rounded, size: 14),
+                                            label: const Text('Edit', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFF0098DA),
+                                              foregroundColor: Colors.white,
+                                              elevation: 0,
+                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          ElevatedButton.icon(
+                                            onPressed: () => _confirmDeleteAnnouncement(ann),
+                                            icon: const Icon(Icons.delete_forever_rounded, size: 14),
+                                            label: const Text('Delete', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFFDC2626),
+                                              foregroundColor: Colors.white,
+                                              elevation: 0,
+                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                            ),
+                                          ),
+                                        ],
+                                      )),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
           ),
           if (filteredList.isNotEmpty) ...[
             const SizedBox(height: 12),

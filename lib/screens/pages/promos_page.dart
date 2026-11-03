@@ -411,7 +411,7 @@ class _PromosPageState extends State<PromosPage> {
       DropdownMenuItem(value: 'inactive', child: Text('Inactive Only', style: TextStyle(fontSize: 12, color: Color(0xFF0F172A)))),
     ];
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -549,44 +549,45 @@ class _PromosPageState extends State<PromosPage> {
             ),
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: _isLoading
-                ? const Padding(
-                    padding: EdgeInsets.all(40),
-                    child: Center(child: CircularProgressIndicator(color: Color(0xFF0284C7))),
-                  )
-                : filteredList.isEmpty
-                    ? Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                        ),
-                        padding: const EdgeInsets.all(40),
-                        child: const Center(child: Text('No promo codes found matching filter.', style: TextStyle(fontSize: 13, color: Color(0xFF475569)))),
-                      )
-                : _isGridView
-                    ? LayoutBuilder(
-                        builder: (context, constraints) {
-                          int crossAxisCount = 3;
-                          if (constraints.maxWidth < 700) {
-                            crossAxisCount = 1;
-                          } else if (constraints.maxWidth < 1100) {
-                            crossAxisCount = 2;
-                          }
-                          return GridView.builder(
-                            itemCount: paginatedList.length,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: crossAxisCount,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              mainAxisExtent: 220,
-                            ),
-                            itemBuilder: (context, index) => _buildPromoCard(paginatedList[index]),
-                          );
-                        },
-                      )
+          _isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Center(child: CircularProgressIndicator(color: Color(0xFF0284C7))),
+                )
+              : filteredList.isEmpty
+                  ? Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                      ),
+                      padding: const EdgeInsets.all(40),
+                      child: const Center(child: Text('No promo codes found matching filter.', style: TextStyle(fontSize: 13, color: Color(0xFF475569)))),
+                    )
+              : _isGridView
+                  ? LayoutBuilder(
+                      builder: (context, constraints) {
+                        int crossAxisCount = 3;
+                        if (constraints.maxWidth < 700) {
+                          crossAxisCount = 1;
+                        } else if (constraints.maxWidth < 1100) {
+                          crossAxisCount = 2;
+                        }
+                        return GridView.builder(
+                          itemCount: paginatedList.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            mainAxisExtent: 220,
+                          ),
+                          itemBuilder: (context, index) => _buildPromoCard(paginatedList[index]),
+                        );
+                      },
+                    )
                     : Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -686,7 +687,6 @@ class _PromosPageState extends State<PromosPage> {
                           },
                         ),
                       ),
-          ),
           if (filteredList.isNotEmpty) ...[
             const SizedBox(height: 12),
             AppPaginationControls(

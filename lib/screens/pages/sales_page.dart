@@ -397,6 +397,45 @@ class _SalesPageState extends State<SalesPage> {
     );
   }
 
+  Widget _buildActionButtons(List<Map<String, dynamic>> filtered) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        OutlinedButton.icon(
+          onPressed: () {
+            if (filtered.isEmpty) {
+              SweetAlert.showToast('No sales records to print.', type: SweetAlertType.warning, title: 'Print Warning');
+              return;
+            }
+            PrintHelper.printSalesReport(filtered, _dateRange);
+            SweetAlert.showToast('Sales analytics report sent to printer!', type: SweetAlertType.success, title: 'Printing Report');
+          },
+          icon: const Icon(Icons.print_rounded, size: 16, color: Color(0xFF0284C7)),
+          label: const Text('Print Report', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Color(0xFF0284C7)),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        ElevatedButton.icon(
+          onPressed: _loadSalesData,
+          icon: const Icon(Icons.refresh_rounded, size: 16),
+          label: const Text('Refresh Data'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0284C7),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 2,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filteredSales;
@@ -444,68 +483,12 @@ class _SalesPageState extends State<SalesPage> {
       },
     );
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHighlightBanner(),
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 16,
-            runSpacing: 12,
-            children: [
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Sales & Revenue Analytics', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                    const SizedBox(height: 4),
-                    Text('Comprehensive revenue tracking & transaction analytics recorded from all sales (Walk-in & Online) ($_dateRange).', style: const TextStyle(fontSize: 13, color: Color(0xFF475569))),
-                  ],
-                ),
-              ),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      if (filtered.isEmpty) {
-                        SweetAlert.showToast('No sales records to print.', type: SweetAlertType.warning, title: 'Print Warning');
-                        return;
-                      }
-                      PrintHelper.printSalesReport(filtered, _dateRange);
-                      SweetAlert.showToast('Sales analytics report sent to printer!', type: SweetAlertType.success, title: 'Printing Report');
-                    },
-                    icon: const Icon(Icons.print_rounded, size: 16, color: Color(0xFF0284C7)),
-                    label: const Text('Print Report', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF0284C7)),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: _loadSalesData,
-                    icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text('Refresh Data'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0284C7),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 2,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
           summaryStrip,
           const SizedBox(height: 20),
           Container(
@@ -518,7 +501,9 @@ class _SalesPageState extends State<SalesPage> {
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                if (constraints.maxWidth < 640) {
+                final actionBtns = _buildActionButtons(filtered);
+
+                if (constraints.maxWidth < 700) {
                   return Column(
                     children: [
                       _buildSearchField(),
@@ -528,20 +513,28 @@ class _SalesPageState extends State<SalesPage> {
                       _buildFilterDropdown(),
                       const SizedBox(height: 12),
                       _buildClassificationDropdown(),
+                      const SizedBox(height: 12),
+                      actionBtns,
                     ],
                   );
-                } else if (constraints.maxWidth < 980) {
+                } else if (constraints.maxWidth < 1100) {
                   return Column(
                     children: [
-                      _buildSearchField(),
+                      Row(
+                        children: [
+                          Expanded(flex: 3, child: _buildSearchField()),
+                          const SizedBox(width: 10),
+                          Expanded(flex: 2, child: _buildDateRangeDropdown()),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Expanded(child: _buildDateRangeDropdown()),
-                          const SizedBox(width: 10),
                           Expanded(child: _buildFilterDropdown()),
                           const SizedBox(width: 10),
                           Expanded(child: _buildClassificationDropdown()),
+                          const SizedBox(width: 10),
+                          actionBtns,
                         ],
                       ),
                     ],
@@ -556,6 +549,8 @@ class _SalesPageState extends State<SalesPage> {
                     Expanded(flex: 2, child: _buildFilterDropdown()),
                     const SizedBox(width: 10),
                     Expanded(flex: 2, child: _buildClassificationDropdown()),
+                    const SizedBox(width: 12),
+                    actionBtns,
                   ],
                 );
               },
@@ -563,182 +558,171 @@ class _SalesPageState extends State<SalesPage> {
           ),
           const SizedBox(height: 20),
 
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                boxShadow: const [BoxShadow(color: Color(0x1F000000), blurRadius: 20, offset: Offset(0, 6))],
-              ),
-              child: _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(color: Color(0xFF0284C7)),
-                    )
-                  : filtered.isEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.all(40),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.receipt_long_outlined, size: 48, color: Color(0xFF0284C7)),
-                                const SizedBox(height: 12),
-                                Text('No sales transactions found for timeframe: $_dateRange.', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                                const SizedBox(height: 4),
-                                const Text('Try changing your date filter, classification, or search query.', style: TextStyle(fontSize: 12, color: Color(0xFF475569))),
-                              ],
-                            ),
-                          ),
-                        )
-                      : LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SizedBox(
-                              width: constraints.maxWidth,
-                              height: constraints.maxHeight,
-                              child: ClipRect(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                      child: DataTable(
-                                        dataRowMinHeight: 54,
-                                        dataRowMaxHeight: 58,
-                                        headingRowHeight: 50,
-                                        columnSpacing: 22,
-                                        columns: const [
-                                          DataColumn(label: Text('INVOICE / RECEIPT #', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('CUSTOMER / NOTE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('CLASSIFICATION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('PAYMENT METHOD', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('TOTAL AMOUNT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('TIMESTAMP', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                        ],
-                                        rows: paginated.map((sale) {
-                                          final isHighlighted = _isSaleHighlighted(sale);
-                                          final idStr = sale['id']?.toString() ?? '';
-                                          final shortId = idStr.length >= 8 ? idStr.substring(0, 8).toUpperCase() : '001';
-                                          final invoiceNum = sale['invoice_number']?.toString() ?? 'INV-$shortId';
-                                          final receiptNum = sale['receipt_number']?.toString() ?? 'RCP-$shortId';
-                                          final custStr = sale['customer_name']?.toString() ?? sale['notes']?.toString() ?? 'Walk-in Customer';
-                                          final payMethod = sale['payment_method']?.toString() ?? 'Cash';
-                                          final classification = _determineClassification(sale);
-                                          final isOnline = classification == 'Online';
-                                          final totalAmt = (sale['total_amount'] as num?)?.toDouble() ?? 0.0;
-                                          final timeStr = sale['created_at']?.toString().replaceAll('T', ' ').split('.').first ?? 'Today';
-
-                                          return animatedDataRow(
-                                            isHighlighted: isHighlighted,
-                                            cells: [
-                                              DataCell(
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(invoiceNum, style: const TextStyle(fontSize: 12, color: Color(0xFF0284C7), fontWeight: FontWeight.bold)),
-                                                    Text(receiptNum, style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
-                                                  ],
-                                                ),
-                                              ),
-                                              DataCell(Text(custStr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)))),
-                                              DataCell(Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: isOnline ? const Color(0xFFEEF2FF) : const Color(0xFFE0F2FE),
-                                                  borderRadius: BorderRadius.circular(999),
-                                                  border: Border.all(color: isOnline ? const Color(0xFFC7D2FE) : const Color(0xFFBAE6FD)),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      isOnline ? Icons.language_rounded : Icons.storefront_rounded,
-                                                      size: 12,
-                                                      color: isOnline ? const Color(0xFF4338CA) : const Color(0xFF0369A1),
-                                                    ),
-                                                    const SizedBox(width: 4),
-                                                    Text(
-                                                      classification.toUpperCase(),
-                                                      style: TextStyle(
-                                                        fontSize: 10,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: isOnline ? const Color(0xFF4338CA) : const Color(0xFF0369A1),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              )),
-                                              DataCell(Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: payMethod.toLowerCase().contains('gcash') ? const Color(0xFFE0F2FE) : const Color(0xFFDCFCE7),
-                                                  borderRadius: BorderRadius.circular(999),
-                                                ),
-                                                child: Text(
-                                                  payMethod.toUpperCase(),
-                                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: payMethod.toLowerCase().contains('gcash') ? const Color(0xFF075985) : const Color(0xFF166534)),
-                                                ),
-                                              )),
-                                              DataCell(Text('₱${totalAmt.toStringAsFixed(2)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)))),
-                                              DataCell(Text(timeStr, style: const TextStyle(fontSize: 12, color: Color(0xFF475569)))),
-                                              DataCell(
-                                                Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    ElevatedButton.icon(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (context) => ReceiptDetailsDialog(sale: sale),
-                                                        );
-                                                      },
-                                                      icon: const Icon(Icons.receipt_long_rounded, size: 14),
-                                                      label: const Text('View Invoice', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                      style: ElevatedButton.styleFrom(
-                                                        backgroundColor: const Color(0xFF0284C7),
-                                                        foregroundColor: Colors.white,
-                                                        elevation: 0,
-                                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 6),
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        PrintHelper.printReceipt(sale);
-                                                        SweetAlert.showToast(
-                                                          'Official Invoice & Receipt sent to printer!',
-                                                          type: SweetAlertType.success,
-                                                          title: 'Printing Receipt',
-                                                        );
-                                                      },
-                                                      icon: const Icon(Icons.print_rounded, size: 18, color: Color(0xFF0284C7)),
-                                                      tooltip: 'Print Receipt',
-                                                      style: IconButton.styleFrom(
-                                                        backgroundColor: const Color(0xFFE0F2FE),
-                                                        padding: const EdgeInsets.all(8),
-                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+              boxShadow: const [BoxShadow(color: Color(0x1F000000), blurRadius: 20, offset: Offset(0, 6))],
             ),
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF0284C7)),
+                  )
+                : filtered.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(40),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.receipt_long_outlined, size: 48, color: Color(0xFF0284C7)),
+                              const SizedBox(height: 12),
+                              Text('No sales transactions found for timeframe: $_dateRange.', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                              const SizedBox(height: 4),
+                              const Text('Try changing your date filter, classification, or search query.', style: TextStyle(fontSize: 12, color: Color(0xFF475569))),
+                            ],
+                          ),
+                        ),
+                      )
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: DataTable(
+                                dataRowMinHeight: 54,
+                                dataRowMaxHeight: 58,
+                                headingRowHeight: 50,
+                                columnSpacing: 22,
+                                columns: const [
+                                  DataColumn(label: Text('INVOICE / RECEIPT #', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('CUSTOMER / NOTE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('CLASSIFICATION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('PAYMENT METHOD', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('TOTAL AMOUNT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('TIMESTAMP', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                ],
+                                rows: paginated.map((sale) {
+                                  final isHighlighted = _isSaleHighlighted(sale);
+                                  final idStr = sale['id']?.toString() ?? '';
+                                  final shortId = idStr.length >= 8 ? idStr.substring(0, 8).toUpperCase() : '001';
+                                  final invoiceNum = sale['invoice_number']?.toString() ?? 'INV-$shortId';
+                                  final receiptNum = sale['receipt_number']?.toString() ?? 'RCP-$shortId';
+                                  final custStr = sale['customer_name']?.toString() ?? sale['notes']?.toString() ?? 'Walk-in Customer';
+                                  final payMethod = sale['payment_method']?.toString() ?? 'Cash';
+                                  final classification = _determineClassification(sale);
+                                  final isOnline = classification == 'Online';
+                                  final totalAmt = (sale['total_amount'] as num?)?.toDouble() ?? 0.0;
+                                  final timeStr = sale['created_at']?.toString().replaceAll('T', ' ').split('.').first ?? 'Today';
+
+                                  return animatedDataRow(
+                                    isHighlighted: isHighlighted,
+                                    cells: [
+                                      DataCell(
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(invoiceNum, style: const TextStyle(fontSize: 12, color: Color(0xFF0284C7), fontWeight: FontWeight.bold)),
+                                            Text(receiptNum, style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                                          ],
+                                        ),
+                                      ),
+                                      DataCell(Text(custStr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)))),
+                                      DataCell(Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: isOnline ? const Color(0xFFEEF2FF) : const Color(0xFFE0F2FE),
+                                          borderRadius: BorderRadius.circular(999),
+                                          border: Border.all(color: isOnline ? const Color(0xFFC7D2FE) : const Color(0xFFBAE6FD)),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              isOnline ? Icons.language_rounded : Icons.storefront_rounded,
+                                              size: 12,
+                                              color: isOnline ? const Color(0xFF4338CA) : const Color(0xFF0369A1),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              classification.toUpperCase(),
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: isOnline ? const Color(0xFF4338CA) : const Color(0xFF0369A1),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )),
+                                      DataCell(Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: payMethod.toLowerCase().contains('gcash') ? const Color(0xFFE0F2FE) : const Color(0xFFDCFCE7),
+                                          borderRadius: BorderRadius.circular(999),
+                                        ),
+                                        child: Text(
+                                          payMethod.toUpperCase(),
+                                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: payMethod.toLowerCase().contains('gcash') ? const Color(0xFF075985) : const Color(0xFF166534)),
+                                        ),
+                                      )),
+                                      DataCell(Text('₱${totalAmt.toStringAsFixed(2)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)))),
+                                      DataCell(Text(timeStr, style: const TextStyle(fontSize: 12, color: Color(0xFF475569)))),
+                                      DataCell(
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) => ReceiptDetailsDialog(sale: sale),
+                                                );
+                                              },
+                                              icon: const Icon(Icons.receipt_long_rounded, size: 14),
+                                              label: const Text('View Invoice', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF0284C7),
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            IconButton(
+                                              onPressed: () {
+                                                PrintHelper.printReceipt(sale);
+                                                SweetAlert.showToast(
+                                                  'Official Invoice & Receipt sent to printer!',
+                                                  type: SweetAlertType.success,
+                                                  title: 'Printing Receipt',
+                                                );
+                                              },
+                                              icon: const Icon(Icons.print_rounded, size: 18, color: Color(0xFF0284C7)),
+                                              tooltip: 'Print Receipt',
+                                              style: IconButton.styleFrom(
+                                                backgroundColor: const Color(0xFFE0F2FE),
+                                                padding: const EdgeInsets.all(8),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
           ),
           if (filtered.isNotEmpty) ...[
             const SizedBox(height: 12),

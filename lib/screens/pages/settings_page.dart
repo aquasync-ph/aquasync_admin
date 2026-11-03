@@ -796,6 +796,52 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildActionButtons() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        OutlinedButton.icon(
+          onPressed: _resetToDefaults,
+          icon: const Icon(Icons.restart_alt_rounded, size: 16),
+          label: const Text('Reset Defaults'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF0284C7),
+            side: BorderSide(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        ElevatedButton.icon(
+          onPressed: widget.onRefresh,
+          icon: const Icon(Icons.sync_rounded, size: 16),
+          label: const Text('Refresh Data'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF0284C7),
+            side: BorderSide(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        ElevatedButton.icon(
+          onPressed: _isSaving ? null : _saveSettings,
+          icon: _isSaving
+              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save_rounded, size: 16),
+          label: Text(_isSaving ? 'Saving...' : 'Save All Settings'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0284C7),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -812,81 +858,41 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Row
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 16,
-            runSpacing: 12,
-            children: [
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // Category Pills Filter Bar & Action Buttons
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final categoryPills = SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
                   children: [
-                    Text('System & Station Settings', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                    SizedBox(height: 4),
-                    Text('Configure station parameters, delivery operational rules, and GCash payment QR details.',
-                        style: TextStyle(fontSize: 13, color: Color(0xFF475569))),
+                    _buildCategoryPill(0, 'All Settings', Icons.grid_view_rounded),
+                    _buildCategoryPill(1, 'Station & Location', Icons.storefront_rounded),
+                    _buildCategoryPill(2, 'GCash & Payment QR', Icons.qr_code_scanner_rounded),
                   ],
                 ),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _resetToDefaults,
-                    icon: const Icon(Icons.restart_alt_rounded, size: 16),
-                    label: const Text('Reset Defaults'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF0284C7),
-                      side: BorderSide(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: widget.onRefresh,
-                    icon: const Icon(Icons.sync_rounded, size: 16),
-                    label: const Text('Refresh Data'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF0284C7),
-                      side: BorderSide(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: _isSaving ? null : _saveSettings,
-                    icon: _isSaving
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.save_rounded, size: 16),
-                    label: Text(_isSaving ? 'Saving...' : 'Save All Settings'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0284C7),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
+              );
 
-          // Category Pills Filter Bar
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildCategoryPill(0, 'All Settings', Icons.grid_view_rounded),
-                _buildCategoryPill(1, 'Station & Location', Icons.storefront_rounded),
-                _buildCategoryPill(2, 'GCash & Payment QR', Icons.qr_code_scanner_rounded),
-              ],
-            ),
+              final actionBtns = _buildActionButtons();
+
+              if (constraints.maxWidth < 900) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    categoryPills,
+                    const SizedBox(height: 12),
+                    actionBtns,
+                  ],
+                );
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  categoryPills,
+                  actionBtns,
+                ],
+              );
+            },
           ),
           const SizedBox(height: 18),
 

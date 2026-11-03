@@ -89,53 +89,6 @@ class _ReviewsPageState extends State<ReviewsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 16,
-            runSpacing: 12,
-            children: [
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Customer Reviews & Driver Feedback',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Monitor customer satisfaction and driver performance reviews submitted from user side',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF475569),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              OutlinedButton.icon(
-                onPressed: widget.onRefresh,
-                icon: const Icon(Icons.refresh_rounded, size: 16),
-                label: const Text('Refresh'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF0284C7),
-                  side: BorderSide(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
           // KPI Summary Cards
           LayoutBuilder(
             builder: (context, constraints) {
@@ -330,6 +283,20 @@ class _ReviewsPageState extends State<ReviewsPage> {
                           child: Text('1 Star', style: TextStyle(color: Color(0xFF0F172A))),
                         ),
                       ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton.icon(
+                  onPressed: widget.onRefresh,
+                  icon: const Icon(Icons.refresh_rounded, size: 16),
+                  label: const Text('Refresh'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF0284C7),
+                    side: BorderSide(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),

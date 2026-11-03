@@ -216,7 +216,7 @@ class _CustomersPageState extends State<CustomersPage> {
       },
     );
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,149 +288,138 @@ class _CustomersPageState extends State<CustomersPage> {
             ),
           ),
           const SizedBox(height: 20),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
-                    boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
-                  ),
-                  child: filtered.isEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.all(40),
-                          child: Center(
-                            child: Text(_showArchived ? 'No archived customer records.' : 'No active customers found matching search.', style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-                          ),
-                        )
-                      : LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SizedBox(
-                              width: constraints.maxWidth,
-                              height: constraints.maxHeight,
-                              child: ClipRect(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                      child: DataTable(
-                                        dataRowMinHeight: 54,
-                                        dataRowMaxHeight: 58,
-                                        headingRowHeight: 50,
-                                        columnSpacing: 22,
-                                        columns: const [
-                                          DataColumn(label: Text('CUSTOMER UUID', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('FULL NAME', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('PHONE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('DELIVERY ADDRESS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('LOYALTY RFID', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                          DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                        ],
-                                        rows: paginated.map((cust) {
-                                          final hasRfid = cust.rfidUid.isNotEmpty;
-                                          return DataRow(
-                                            cells: [
-                                              DataCell(Text(cust.id.length >= 8 ? cust.id.substring(0, 8) : cust.id, style: const TextStyle(fontSize: 13, color: Color(0xFF0098DA), fontWeight: FontWeight.bold))),
-                                              DataCell(Text(cust.fullName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
-                                              DataCell(Text(cust.phone, style: const TextStyle(fontSize: 13, color: Color(0xFF5A5E63)))),
-                                              DataCell(SizedBox(
-                                                width: 200,
-                                                child: Text(cust.address, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, color: Color(0xFF5A5E63))),
-                                              )),
-                                              DataCell(Text(hasRfid ? cust.rfidUid : 'Unassigned', style: TextStyle(fontSize: 13, color: hasRfid ? const Color(0xFF0098DA) : const Color(0xFF5A5E63), fontWeight: hasRfid ? FontWeight.bold : FontWeight.normal))),
-                                              DataCell(
-                                                !_showArchived
-                                                    ? Row(
-                                                        children: [
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => widget.onViewCustomerDetails(cust),
-                                                            icon: const Icon(Icons.visibility_rounded, size: 14),
-                                                            label: const Text('View Profile', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFF1B4965),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(width: 6),
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => widget.onEditCustomer(cust),
-                                                            icon: const Icon(Icons.edit_rounded, size: 14),
-                                                            label: const Text('Edit Profile', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFF0098DA),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(width: 6),
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => _confirmArchive(cust),
-                                                            icon: const Icon(Icons.archive_outlined, size: 14),
-                                                            label: const Text('Archive', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFFD97706),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : Row(
-                                                        children: [
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => _confirmRestore(cust),
-                                                            icon: const Icon(Icons.unarchive_outlined, size: 14),
-                                                            label: const Text('Restore', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFF10B981),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(width: 6),
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => _confirmDeletePermanently(cust),
-                                                            icon: const Icon(Icons.delete_forever_rounded, size: 14),
-                                                            label: const Text('Delete', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFFDC2626),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                              ),
-                                            ],
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
+                  boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
                 ),
+                child: filtered.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(40),
+                        child: Center(
+                          child: Text(_showArchived ? 'No archived customer records.' : 'No active customers found matching search.', style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                        ),
+                      )
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: DataTable(
+                                dataRowMinHeight: 54,
+                                dataRowMaxHeight: 58,
+                                headingRowHeight: 50,
+                                columnSpacing: 22,
+                                columns: const [
+                                  DataColumn(label: Text('CUSTOMER UUID', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('FULL NAME', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('PHONE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('DELIVERY ADDRESS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('LOYALTY RFID', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                  DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                ],
+                                rows: paginated.map((cust) {
+                                  final hasRfid = cust.rfidUid.isNotEmpty;
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(Text(cust.id.length >= 8 ? cust.id.substring(0, 8) : cust.id, style: const TextStyle(fontSize: 13, color: Color(0xFF0098DA), fontWeight: FontWeight.bold))),
+                                      DataCell(Text(cust.fullName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)))),
+                                      DataCell(Text(cust.phone, style: const TextStyle(fontSize: 13, color: Color(0xFF5A5E63)))),
+                                      DataCell(SizedBox(
+                                        width: 200,
+                                        child: Text(cust.address, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, color: Color(0xFF5A5E63))),
+                                      )),
+                                      DataCell(Text(hasRfid ? cust.rfidUid : 'Unassigned', style: TextStyle(fontSize: 13, color: hasRfid ? const Color(0xFF0098DA) : const Color(0xFF5A5E63), fontWeight: hasRfid ? FontWeight.bold : FontWeight.normal))),
+                                      DataCell(
+                                        !_showArchived
+                                            ? Row(
+                                                children: [
+                                                  ElevatedButton.icon(
+                                                    onPressed: () => widget.onViewCustomerDetails(cust),
+                                                    icon: const Icon(Icons.visibility_rounded, size: 14),
+                                                    label: const Text('View Profile', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: const Color(0xFF1B4965),
+                                                      foregroundColor: Colors.white,
+                                                      elevation: 0,
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  ElevatedButton.icon(
+                                                    onPressed: () => widget.onEditCustomer(cust),
+                                                    icon: const Icon(Icons.edit_rounded, size: 14),
+                                                    label: const Text('Edit Profile', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: const Color(0xFF0098DA),
+                                                      foregroundColor: Colors.white,
+                                                      elevation: 0,
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  ElevatedButton.icon(
+                                                    onPressed: () => _confirmArchive(cust),
+                                                    icon: const Icon(Icons.archive_outlined, size: 14),
+                                                    label: const Text('Archive', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: const Color(0xFFD97706),
+                                                      foregroundColor: Colors.white,
+                                                      elevation: 0,
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : Row(
+                                                children: [
+                                                  ElevatedButton.icon(
+                                                    onPressed: () => _confirmRestore(cust),
+                                                    icon: const Icon(Icons.unarchive_outlined, size: 14),
+                                                    label: const Text('Restore', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: const Color(0xFF10B981),
+                                                      foregroundColor: Colors.white,
+                                                      elevation: 0,
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  ElevatedButton.icon(
+                                                    onPressed: () => _confirmDeletePermanently(cust),
+                                                    icon: const Icon(Icons.delete_forever_rounded, size: 14),
+                                                    label: const Text('Delete', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: const Color(0xFFDC2626),
+                                                      foregroundColor: Colors.white,
+                                                      elevation: 0,
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ),
           ),

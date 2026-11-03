@@ -777,6 +777,95 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
     );
   }
 
+  Widget _buildActionButtons() {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFE6F3FA),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF5A5E63).withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () => setState(() => _isGridView = true),
+                icon: const Icon(Icons.grid_view_rounded, size: 20),
+                color: _isGridView ? const Color(0xFF0098DA) : const Color(0xFF5A5E63),
+                tooltip: 'Grid View',
+              ),
+              IconButton(
+                onPressed: () => setState(() => _isGridView = false),
+                icon: const Icon(Icons.table_rows_rounded, size: 20),
+                color: !_isGridView ? const Color(0xFF0098DA) : const Color(0xFF5A5E63),
+                tooltip: 'List / Table View',
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildSegmentPill('active', 'Active'),
+              _buildSegmentPill('pending', 'Pending'),
+              _buildSegmentPill('archived', 'Archived'),
+            ],
+          ),
+        ),
+        PopupMenuButton<String>(
+          tooltip: 'Add New Account',
+          offset: const Offset(0, 44),
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+          ),
+          onSelected: (val) {
+            if (val == 'customer') widget.onAddCustomer();
+            if (val == 'driver') widget.onAddDriver();
+            if (val == 'cashier') widget.onAddCashier();
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem(value: 'customer', child: Row(children: [Icon(Icons.person_add_rounded, size: 18, color: Color(0xFF0284C7)), SizedBox(width: 10), Text('Register Customer', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 13))])),
+            PopupMenuItem(value: 'driver', child: Row(children: [Icon(Icons.badge_outlined, size: 18, color: Color(0xFF0284C7)), SizedBox(width: 10), Text('Register Driver', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 13))])),
+            PopupMenuItem(value: 'cashier', child: Row(children: [Icon(Icons.point_of_sale_rounded, size: 18, color: Color(0xFF8B5CF6)), SizedBox(width: 10), Text('Register Cashier', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 13))])),
+          ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0284C7),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(color: Color(0x330284C7), blurRadius: 10, offset: Offset(0, 3)),
+              ],
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.person_add_rounded, size: 18, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Add Account', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                SizedBox(width: 4),
+                Icon(Icons.arrow_drop_down_rounded, size: 18, color: Colors.white),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAccountCard(Map<String, dynamic> profile) {
     final id = profile['id']?.toString() ?? '';
     final name = profile['full_name']?.toString() ?? profile['name']?.toString() ?? 'User';
@@ -1083,138 +1172,12 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
       },
     );
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHighlightBanner(),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 960;
-              final controls = Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE6F3FA),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF5A5E63).withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () => setState(() => _isGridView = true),
-                          icon: const Icon(Icons.grid_view_rounded, size: 20),
-                          color: _isGridView ? const Color(0xFF0098DA) : const Color(0xFF5A5E63),
-                          tooltip: 'Grid View',
-                        ),
-                        IconButton(
-                          onPressed: () => setState(() => _isGridView = false),
-                          icon: const Icon(Icons.table_rows_rounded, size: 20),
-                          color: !_isGridView ? const Color(0xFF0098DA) : const Color(0xFF5A5E63),
-                          tooltip: 'List / Table View',
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildSegmentPill('active', 'Active'),
-                        _buildSegmentPill('pending', 'Pending'),
-                        _buildSegmentPill('archived', 'Archived'),
-                      ],
-                    ),
-                  ),
-                  PopupMenuButton<String>(
-                    tooltip: 'Add New Account',
-                    offset: const Offset(0, 44),
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                    ),
-                    onSelected: (val) {
-                      if (val == 'customer') widget.onAddCustomer();
-                      if (val == 'driver') widget.onAddDriver();
-                      if (val == 'cashier') widget.onAddCashier();
-                    },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(value: 'customer', child: Row(children: [Icon(Icons.person_add_rounded, size: 18, color: Color(0xFF0284C7)), SizedBox(width: 10), Text('Register Customer', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 13))])),
-                      PopupMenuItem(value: 'driver', child: Row(children: [Icon(Icons.badge_outlined, size: 18, color: Color(0xFF0284C7)), SizedBox(width: 10), Text('Register Driver', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 13))])),
-                      PopupMenuItem(value: 'cashier', child: Row(children: [Icon(Icons.point_of_sale_rounded, size: 18, color: Color(0xFF8B5CF6)), SizedBox(width: 10), Text('Register Cashier', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 13))])),
-                    ],
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0284C7),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(color: Color(0x330284C7), blurRadius: 10, offset: Offset(0, 3)),
-                        ],
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.person_add_rounded, size: 18, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text('Add Account', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
-                          SizedBox(width: 4),
-                          Icon(Icons.arrow_drop_down_rounded, size: 18, color: Colors.white),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              );
-
-              if (isWide) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Account Management', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        SizedBox(height: 4),
-                        Text('Unified management of customers, delivery drivers, and POS cashiers from public.profiles.', style: TextStyle(fontSize: 13, color: Color(0xFF475569))),
-                      ],
-                    ),
-                    controls,
-                  ],
-                );
-              } else {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Account Management', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        SizedBox(height: 4),
-                        Text('Unified management of customers, delivery drivers, and POS cashiers from public.profiles.', style: TextStyle(fontSize: 13, color: Color(0xFF475569))),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    controls,
-                  ],
-                );
-              }
-            },
-          ),
-          const SizedBox(height: 18),
           summaryStrip,
           if (_statusFilter == 'pending' && !_isPolicyBannerDismissed) ...[
             const SizedBox(height: 16),
@@ -1270,18 +1233,173 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
             ),
           ],
           const SizedBox(height: 20),
-          AnimatedCrossFade(
-            duration: const Duration(milliseconds: 350),
-            firstCurve: Curves.easeOutCubic,
-            secondCurve: Curves.easeInCubic,
-            sizeCurve: Curves.easeInOutCubic,
-            crossFadeState: _isSearchExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            firstChild: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => setState(() => _isSearchExpanded = true),
-                borderRadius: BorderRadius.circular(18),
-                child: Container(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final searchCrossFade = AnimatedCrossFade(
+                duration: const Duration(milliseconds: 350),
+                firstCurve: Curves.easeOutCubic,
+                secondCurve: Curves.easeInCubic,
+                sizeCurve: Curves.easeInOutCubic,
+                crossFadeState: _isSearchExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                firstChild: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => setState(() => _isSearchExpanded = true),
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.white, Color(0xFFF8FAFC), Color(0xFFF0F9FF)],
+                        ),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: (_searchQuery.isNotEmpty || _selectedCategory != 'all')
+                              ? const Color(0xFF0284C7)
+                              : const Color(0xFF0284C7).withValues(alpha: 0.25),
+                          width: (_searchQuery.isNotEmpty || _selectedCategory != 'all') ? 1.5 : 1.0,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0284C7).withValues(alpha: 0.08),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              height: 3,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF0369A1), Color(0xFF38BDF8)],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(9),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Color(0x330284C7),
+                                          blurRadius: 8,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(Icons.search_rounded, size: 18, color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Text(
+                                              'Search & Filter Accounts',
+                                              style: TextStyle(
+                                                fontSize: 13.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF0F172A),
+                                              ),
+                                            ),
+                                            if (_searchQuery.isNotEmpty || _selectedCategory != 'all') ...[
+                                              const SizedBox(width: 8),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFF0284C7),
+                                                  borderRadius: BorderRadius.circular(20),
+                                                ),
+                                                child: const Text(
+                                                  'Filter Active',
+                                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          _searchQuery.isNotEmpty
+                                              ? 'Query: "$_searchQuery" • Category: ${_selectedCategory.toUpperCase()}'
+                                              : _selectedCategory != 'all'
+                                                  ? 'Category: ${_selectedCategory.toUpperCase()}'
+                                                  : 'Click to open search bar and category filters (Customers, Drivers, Cashiers)',
+                                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (_searchQuery.isNotEmpty || _selectedCategory != 'all') ...[
+                                    IconButton(
+                                      icon: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF64748B)),
+                                      tooltip: 'Clear Filters',
+                                      onPressed: () {
+                                        setState(() {
+                                          _searchQuery = '';
+                                          _searchController.clear();
+                                          _selectedCategory = 'all';
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0284C7).withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.search_rounded, size: 15, color: Color(0xFF0284C7)),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          'Open Search',
+                                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+                                        ),
+                                        SizedBox(width: 4),
+                                        AnimatedRotation(
+                                          turns: 0.0,
+                                          duration: Duration(milliseconds: 350),
+                                          child: Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFF0284C7)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                secondChild: Container(
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
@@ -1290,16 +1408,19 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
                     ),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: (_searchQuery.isNotEmpty || _selectedCategory != 'all')
-                          ? const Color(0xFF0284C7)
-                          : const Color(0xFF0284C7).withValues(alpha: 0.25),
-                      width: (_searchQuery.isNotEmpty || _selectedCategory != 'all') ? 1.5 : 1.0,
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.3),
+                      width: 1.2,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFF0284C7).withValues(alpha: 0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
+                        blurRadius: 20,
+                        offset: const Offset(0, 6),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
@@ -1321,110 +1442,174 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          child: Row(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(9),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color(0x330284C7),
-                                      blurRadius: 8,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(Icons.search_rounded, size: 18, color: Colors.white),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Text(
-                                          'Search & Filter Accounts',
-                                          style: TextStyle(
-                                            fontSize: 13.5,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF0F172A),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(9),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
                                           ),
+                                          borderRadius: BorderRadius.circular(12),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color(0x330284C7),
+                                              blurRadius: 8,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
                                         ),
-                                        if (_searchQuery.isNotEmpty || _selectedCategory != 'all') ...[
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFF0284C7),
-                                              borderRadius: BorderRadius.circular(20),
-                                            ),
-                                            child: const Text(
-                                              'Filter Active',
-                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
-                                            ),
+                                        child: const Icon(Icons.tune_rounded, size: 18, color: Colors.white),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Text(
+                                                'Search & Filter Accounts',
+                                                style: TextStyle(
+                                                  fontSize: 14.5,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: -0.2,
+                                                  color: Color(0xFF0F172A),
+                                                ),
+                                              ),
+                                              if (_searchQuery.isNotEmpty || _selectedCategory != 'all') ...[
+                                                const SizedBox(width: 8),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                                                    borderRadius: BorderRadius.circular(20),
+                                                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        width: 5,
+                                                        height: 5,
+                                                        decoration: const BoxDecoration(
+                                                          color: Color(0xFF0284C7),
+                                                          shape: BoxShape.circle,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      const Text(
+                                                        'Active Filter',
+                                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                          const SizedBox(height: 2),
+                                          const Text(
+                                            'Refine profiles by query name, phone, UUID, or user role category',
+                                            style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                                           ),
                                         ],
-                                      ],
+                                      ),
+                                    ],
+                                  ),
+                                  InkWell(
+                                    onTap: () => setState(() => _isSearchExpanded = false),
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF1F5F9),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: const Color(0xFFCBD5E1)),
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Hide Search',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF475569),
+                                            ),
+                                          ),
+                                          SizedBox(width: 6),
+                                          AnimatedRotation(
+                                            turns: 0.5,
+                                            duration: Duration(milliseconds: 350),
+                                            child: Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFF475569)),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      _searchQuery.isNotEmpty
-                                          ? 'Query: "$_searchQuery" • Category: ${_selectedCategory.toUpperCase()}'
-                                          : _selectedCategory != 'all'
-                                              ? 'Category: ${_selectedCategory.toUpperCase()}'
-                                              : 'Click to open search bar and category filters (Customers, Drivers, Cashiers)',
-                                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
+                              const SizedBox(height: 14),
+                              _buildSearchField(),
+                              const SizedBox(height: 16),
+                              _buildCategoryFilterBar(),
                               if (_searchQuery.isNotEmpty || _selectedCategory != 'all') ...[
-                                IconButton(
-                                  icon: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF64748B)),
-                                  tooltip: 'Clear Filters',
-                                  onPressed: () {
-                                    setState(() {
-                                      _searchQuery = '';
-                                      _searchController.clear();
-                                      _selectedCategory = 'all';
-                                    });
-                                  },
+                                const SizedBox(height: 14),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0284C7).withValues(alpha: 0.06),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.15)),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.filter_list_rounded, size: 15, color: Color(0xFF0284C7)),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Showing ${filtered.length} matching result${filtered.length == 1 ? '' : 's'}',
+                                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+                                          ),
+                                        ],
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            _searchQuery = '';
+                                            _searchController.clear();
+                                            _selectedCategory = 'all';
+                                            _currentPage = 1;
+                                          });
+                                          if (widget.onClearHighlight != null) widget.onClearHighlight!();
+                                        },
+                                        borderRadius: BorderRadius.circular(6),
+                                        child: const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.refresh_rounded, size: 14, color: Color(0xFF0284C7)),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                'Reset All Filters',
+                                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                const SizedBox(width: 6),
                               ],
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0284C7).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.search_rounded, size: 15, color: Color(0xFF0284C7)),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Open Search',
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
-                                    ),
-                                    SizedBox(width: 4),
-                                    AnimatedRotation(
-                                      turns: 0.0,
-                                      duration: Duration(milliseconds: 350),
-                                      child: Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFF0284C7)),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -1432,529 +1617,309 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
                     ),
                   ),
                 ),
-              ),
-            ),
-            secondChild: Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Colors.white, Color(0xFFF8FAFC), Color(0xFFF0F9FF)],
-                ),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: const Color(0xFF0284C7).withValues(alpha: 0.3),
-                  width: 1.2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF0284C7).withValues(alpha: 0.08),
-                    blurRadius: 20,
-                    offset: const Offset(0, 6),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: Stack(
+              );
+
+              if (constraints.maxWidth >= 1050) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: 3,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF0369A1), Color(0xFF38BDF8)],
-                          ),
+                    Expanded(child: searchCrossFade),
+                    const SizedBox(width: 12),
+                    _buildActionButtons(),
+                  ],
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  searchCrossFade,
+                  const SizedBox(height: 12),
+                  _buildActionButtons(),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          _isLoadingProfiles
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)))
+              : filtered.isEmpty
+                  ? Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                      ),
+                      padding: const EdgeInsets.all(40),
+                      child: Center(
+                        child: Text(
+                          _statusFilter == 'archived'
+                              ? 'No archived accounts found.'
+                              : _statusFilter == 'pending'
+                                  ? 'No pending verification accounts found.'
+                                  : 'No active accounts found matching filter.',
+                          style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(9),
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
+                    )
+              : _isGridView
+                  ? LayoutBuilder(
+                      builder: (context, constraints) {
+                        int crossAxisCount = 3;
+                        if (constraints.maxWidth < 700) {
+                          crossAxisCount = 1;
+                        } else if (constraints.maxWidth < 1100) {
+                          crossAxisCount = 2;
+                        }
+                        return GridView.builder(
+                          itemCount: paginated.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            mainAxisExtent: 290,
+                          ),
+                          itemBuilder: (context, index) => _buildAccountCard(paginated[index]),
+                        );
+                      },
+                    )
+                  : Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                        boxShadow: const [BoxShadow(color: Color(0x1F000000), blurRadius: 20, offset: Offset(0, 6))],
+                      ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          dataRowMinHeight: 64,
+                          dataRowMaxHeight: 72,
+                          headingRowHeight: 50,
+                          columnSpacing: 16,
+                          horizontalMargin: 16,
+                          columns: const [
+                            DataColumn(label: Text('ACCOUNT UUID', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                            DataColumn(label: Text('USER PROFILE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                            DataColumn(label: Text('PHONE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                            DataColumn(label: Text('ADDRESS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                            DataColumn(label: Text('ROLE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                            DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                            DataColumn(label: Text('REGISTERED DATE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                            DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                          ],
+                          rows: paginated.map((profile) {
+                            final isHighlighted = _isAccountHighlighted(profile);
+                            final id = profile['id']?.toString() ?? '';
+                            final name = profile['full_name']?.toString() ?? profile['name']?.toString() ?? 'User';
+                            final email = profile['email']?.toString() ?? '—';
+                            final phone = profile['phone']?.toString() ?? '—';
+                            final address = profile['address']?.toString() ?? profile['delivery_address']?.toString() ?? '—';
+                            final avatarUrl = profile['avatar_url']?.toString() ?? profile['image_url']?.toString() ?? profile['photo_url']?.toString();
+                            final role = (profile['role'] ?? 'customer').toString().toLowerCase();
+                            final isArchived = profile['is_archived'] == true;
+                            final isPending = !isArchived && _isProfilePending(profile);
+                            final createdAt = (profile['created_at'] ?? '').toString().split('T').first;
+
+                            Color roleBg;
+                            Color roleFg;
+                            String roleLabel;
+                            if (role == 'driver') {
+                              roleBg = const Color(0xFFE0F2FE);
+                              roleFg = const Color(0xFF0369A1);
+                              roleLabel = 'DRIVER';
+                            } else if (role == 'cashier') {
+                              roleBg = const Color(0xFFF3E8FF);
+                              roleFg = const Color(0xFF9333EA);
+                              roleLabel = 'CASHIER';
+                            } else {
+                              roleBg = const Color(0xFFDCFCE7);
+                              roleFg = const Color(0xFF166534);
+                              roleLabel = 'CUSTOMER';
+                            }
+
+                            Color statusBg;
+                            Color statusFg;
+                            String statusLabel;
+                            if (isArchived) {
+                              statusBg = const Color(0xFFFEE2E2);
+                              statusFg = const Color(0xFF991B1B);
+                              statusLabel = 'ARCHIVED';
+                            } else if (isPending) {
+                              statusBg = const Color(0xFFFEF3C7);
+                              statusFg = const Color(0xFF92400E);
+                              statusLabel = 'PENDING OTP';
+                            } else {
+                              statusBg = const Color(0xFFDCFCE7);
+                              statusFg = const Color(0xFF166534);
+                              statusLabel = 'ACTIVE';
+                            }
+
+                            return animatedDataRow(
+                              isHighlighted: isHighlighted,
+                              cells: [
+                                DataCell(Text(id.length >= 8 ? id.substring(0, 8) : id, style: const TextStyle(fontSize: 13, color: Color(0xFF0284C7), fontWeight: FontWeight.bold))),
+                                DataCell(
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 17,
+                                        backgroundColor: roleBg,
+                                        backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
+                                            ? NetworkImage(avatarUrl)
+                                            : null,
+                                        child: avatarUrl == null || avatarUrl.isEmpty
+                                            ? Text(
+                                                name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: roleFg),
+                                              )
+                                            : null,
                                       ),
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Color(0x330284C7),
-                                          blurRadius: 8,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Icon(Icons.tune_rounded, size: 18, color: Colors.white),
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                                          if (email.isNotEmpty && email != '—')
+                                            Text(email, style: const TextStyle(fontSize: 11, color: Color(0xFF475569))),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 12),
+                                ),
+                                DataCell(Text(phone, style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
+                                DataCell(Text(address.length > 25 ? '${address.substring(0, 25)}...' : address, style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
+                                DataCell(Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(color: roleBg, borderRadius: BorderRadius.circular(999)),
+                                  child: Text(roleLabel, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: roleFg)),
+                                )),
+                                DataCell(Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: statusBg,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    statusLabel,
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusFg),
+                                  ),
+                                )),
+                                DataCell(
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Row(
-                                        children: [
-                                          const Text(
-                                            'Search & Filter Accounts',
-                                            style: TextStyle(
-                                              fontSize: 14.5,
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: -0.2,
-                                              color: Color(0xFF0F172A),
-                                            ),
-                                          ),
-                                          if (_searchQuery.isNotEmpty || _selectedCategory != 'all') ...[
-                                            const SizedBox(width: 8),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFF0284C7).withValues(alpha: 0.12),
-                                                borderRadius: BorderRadius.circular(20),
-                                                border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                                      Text(createdAt, style: const TextStyle(fontSize: 13, color: Color(0xFF0F172A), fontWeight: FontWeight.bold)),
+                                      if (isPending) ...[
+                                        const SizedBox(height: 3),
+                                        _buildTimerBadge(profile['created_at']),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                DataCell(
+                                  _statusFilter == 'archived'
+                                      ? Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              onPressed: () => _confirmRestore(profile),
+                                              icon: const Icon(Icons.unarchive_outlined, size: 14),
+                                              label: const Text('Restore', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF10B981),
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                               ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Container(
-                                                    width: 6,
-                                                    height: 6,
-                                                    decoration: const BoxDecoration(
-                                                      color: Color(0xFF0284C7),
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  const Text(
-                                                    'Filter Active',
-                                                    style: TextStyle(
-                                                      fontSize: 10,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Color(0xFF0284C7),
-                                                    ),
-                                                  ),
-                                                ],
+                                            ),
+                                            const SizedBox(width: 4),
+                                            ElevatedButton.icon(
+                                              onPressed: () => _confirmDeletePermanently(profile),
+                                              icon: const Icon(Icons.delete_forever_rounded, size: 14),
+                                              label: const Text('Delete', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFFDC2626),
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                               ),
                                             ),
                                           ],
-                                        ],
-                                      ),
-                                      const SizedBox(height: 2),
-                                      const Text(
-                                        'Refine profiles by query name, phone, UUID, or user role category',
-                                        style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              InkWell(
-                                onTap: () => setState(() => _isSearchExpanded = false),
-                                borderRadius: BorderRadius.circular(12),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF1F5F9),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: const Color(0xFFCBD5E1)),
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Hide Search',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF475569),
-                                        ),
-                                      ),
-                                      SizedBox(width: 6),
-                                      AnimatedRotation(
-                                        turns: 0.5,
-                                        duration: Duration(milliseconds: 350),
-                                        child: Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFF475569)),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          _buildSearchField(),
-                          const SizedBox(height: 16),
-                          _buildCategoryFilterBar(),
-                          if (_searchQuery.isNotEmpty || _selectedCategory != 'all') ...[
-                            const SizedBox(height: 14),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF0284C7).withValues(alpha: 0.06),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.15)),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.filter_list_rounded, size: 15, color: Color(0xFF0284C7)),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Showing ${filtered.length} matching result${filtered.length == 1 ? '' : 's'}',
-                                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
-                                      ),
-                                    ],
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        _searchQuery = '';
-                                        _searchController.clear();
-                                        _selectedCategory = 'all';
-                                        _currentPage = 1;
-                                      });
-                                      if (widget.onClearHighlight != null) widget.onClearHighlight!();
-                                    },
-                                    borderRadius: BorderRadius.circular(6),
-                                    child: const Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.refresh_rounded, size: 14, color: Color(0xFF0284C7)),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            'Reset All Filters',
-                                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: _isLoadingProfiles
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)))
-                : filtered.isEmpty
-                    ? Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                        ),
-                        padding: const EdgeInsets.all(40),
-                        child: Center(
-                          child: Text(
-                            _statusFilter == 'archived'
-                                ? 'No archived accounts found.'
-                                : _statusFilter == 'pending'
-                                    ? 'No pending verification accounts found.'
-                                    : 'No active accounts found matching filter.',
-                            style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
-                          ),
-                        ),
-                      )
-                : _isGridView
-                    ? LayoutBuilder(
-                        builder: (context, constraints) {
-                          int crossAxisCount = 3;
-                          if (constraints.maxWidth < 700) {
-                            crossAxisCount = 1;
-                          } else if (constraints.maxWidth < 1100) {
-                            crossAxisCount = 2;
-                          }
-                          return GridView.builder(
-                            itemCount: paginated.length,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: crossAxisCount,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              mainAxisExtent: 290,
-                            ),
-                            itemBuilder: (context, index) => _buildAccountCard(paginated[index]),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                          boxShadow: const [BoxShadow(color: Color(0x1F000000), blurRadius: 20, offset: Offset(0, 6))],
-                        ),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SizedBox(
-                              width: constraints.maxWidth,
-                              height: constraints.maxHeight,
-                              child: ClipRect(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                      child: DataTable(
-                                        dataRowMinHeight: 64,
-                                        dataRowMaxHeight: 72,
-                                        headingRowHeight: 50,
-                                        columnSpacing: 16,
-                                        horizontalMargin: 16,
-                                        columns: const [
-                                          DataColumn(label: Text('ACCOUNT UUID', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('USER PROFILE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('PHONE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('ADDRESS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('ROLE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('REGISTERED DATE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                        ],
-                                        rows: paginated.map((profile) {
-                                          final isHighlighted = _isAccountHighlighted(profile);
-                                          final id = profile['id']?.toString() ?? '';
-                                          final name = profile['full_name']?.toString() ?? profile['name']?.toString() ?? 'User';
-                                          final email = profile['email']?.toString() ?? '—';
-                                          final phone = profile['phone']?.toString() ?? '—';
-                                          final address = profile['address']?.toString() ?? profile['delivery_address']?.toString() ?? '—';
-                                          final avatarUrl = profile['avatar_url']?.toString() ?? profile['image_url']?.toString() ?? profile['photo_url']?.toString();
-                                          final role = (profile['role'] ?? 'customer').toString().toLowerCase();
-                                          final isArchived = profile['is_archived'] == true;
-                                          final isPending = !isArchived && _isProfilePending(profile);
-                                          final createdAt = (profile['created_at'] ?? '').toString().split('T').first;
-
-                                          Color roleBg;
-                                          Color roleFg;
-                                          String roleLabel;
-                                          if (role == 'driver') {
-                                            roleBg = const Color(0xFFE0F2FE);
-                                            roleFg = const Color(0xFF0369A1);
-                                            roleLabel = 'DRIVER';
-                                          } else if (role == 'cashier') {
-                                            roleBg = const Color(0xFFF3E8FF);
-                                            roleFg = const Color(0xFF9333EA);
-                                            roleLabel = 'CASHIER';
-                                          } else {
-                                            roleBg = const Color(0xFFDCFCE7);
-                                            roleFg = const Color(0xFF166534);
-                                            roleLabel = 'CUSTOMER';
-                                          }
-
-                                          Color statusBg;
-                                          Color statusFg;
-                                          String statusLabel;
-                                          if (isArchived) {
-                                            statusBg = const Color(0xFFFEE2E2);
-                                            statusFg = const Color(0xFF991B1B);
-                                            statusLabel = 'ARCHIVED';
-                                          } else if (isPending) {
-                                            statusBg = const Color(0xFFFEF3C7);
-                                            statusFg = const Color(0xFF92400E);
-                                            statusLabel = 'PENDING OTP';
-                                          } else {
-                                            statusBg = const Color(0xFFDCFCE7);
-                                            statusFg = const Color(0xFF166534);
-                                            statusLabel = 'ACTIVE';
-                                          }
-
-                                          return animatedDataRow(
-                                            isHighlighted: isHighlighted,
-                                            cells: [
-                                              DataCell(Text(id.length >= 8 ? id.substring(0, 8) : id, style: const TextStyle(fontSize: 13, color: Color(0xFF0284C7), fontWeight: FontWeight.bold))),
-                                              DataCell(
-                                                Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    CircleAvatar(
-                                                      radius: 17,
-                                                      backgroundColor: roleBg,
-                                                      backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
-                                                          ? NetworkImage(avatarUrl)
-                                                          : null,
-                                                      child: avatarUrl == null || avatarUrl.isEmpty
-                                                          ? Text(
-                                                              name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: roleFg),
-                                                            )
-                                                          : null,
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        Text(name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                                                        if (email.isNotEmpty && email != '—')
-                                                          Text(email, style: const TextStyle(fontSize: 11, color: Color(0xFF475569))),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
+                                        )
+                                      : Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              onPressed: () => widget.onViewGenericAccount(profile),
+                                              icon: const Icon(Icons.visibility_rounded, size: 14),
+                                              label: const Text('View', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFFF1F5F9),
+                                                foregroundColor: const Color(0xFF0F172A),
+                                                elevation: 0,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                               ),
-                                              DataCell(Text(phone, style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
-                                              DataCell(Text(address.length > 25 ? '${address.substring(0, 25)}...' : address, style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
-                                              DataCell(Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                                decoration: BoxDecoration(color: roleBg, borderRadius: BorderRadius.circular(999)),
-                                                child: Text(roleLabel, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: roleFg)),
-                                              )),
-                                              DataCell(Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: statusBg,
-                                                  borderRadius: BorderRadius.circular(999),
-                                                ),
-                                                child: Text(
-                                                  statusLabel,
-                                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusFg),
-                                                ),
-                                              )),
-                                              DataCell(
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(createdAt, style: const TextStyle(fontSize: 13, color: Color(0xFF0F172A), fontWeight: FontWeight.bold)),
-                                                    if (isPending) ...[
-                                                      const SizedBox(height: 3),
-                                                      _buildTimerBadge(profile['created_at']),
-                                                    ],
-                                                  ],
-                                                ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            ElevatedButton.icon(
+                                              onPressed: () => widget.onEditGenericAccount(profile),
+                                              icon: const Icon(Icons.edit_rounded, size: 14),
+                                              label: const Text('Edit', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF0284C7),
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                               ),
-                                              DataCell(
-                                                _statusFilter == 'archived'
-                                                    ? Row(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => _confirmRestore(profile),
-                                                            icon: const Icon(Icons.unarchive_outlined, size: 14),
-                                                            label: const Text('Restore', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFF10B981),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(width: 4),
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => _confirmDeletePermanently(profile),
-                                                            icon: const Icon(Icons.delete_forever_rounded, size: 14),
-                                                            label: const Text('Delete', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFFDC2626),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : Row(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => widget.onViewGenericAccount(profile),
-                                                            icon: const Icon(Icons.visibility_rounded, size: 14),
-                                                            label: const Text('View', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFFF1F5F9),
-                                                              foregroundColor: const Color(0xFF0F172A),
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(width: 4),
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => widget.onEditGenericAccount(profile),
-                                                            icon: const Icon(Icons.edit_rounded, size: 14),
-                                                            label: const Text('Edit', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFF0284C7),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                          if (isPending) ...[
-                                                            const SizedBox(width: 4),
-                                                            ElevatedButton.icon(
-                                                              onPressed: () => _confirmVerifyAccount(profile),
-                                                              icon: const Icon(Icons.verified_user_rounded, size: 14),
-                                                              label: const Text('Approve', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                              style: ElevatedButton.styleFrom(
-                                                                backgroundColor: const Color(0xFF10B981),
-                                                                foregroundColor: Colors.white,
-                                                                elevation: 0,
-                                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                          const SizedBox(width: 4),
-                                                          ElevatedButton.icon(
-                                                            onPressed: () => _confirmArchive(profile),
-                                                            icon: const Icon(Icons.archive_outlined, size: 14),
-                                                            label: const Text('Archive', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFFD97706),
-                                                              foregroundColor: Colors.white,
-                                                              elevation: 0,
-                                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
+                                            ),
+                                            if (isPending) ...[
+                                              const SizedBox(width: 4),
+                                              ElevatedButton.icon(
+                                                onPressed: () => _confirmVerifyAccount(profile),
+                                                icon: const Icon(Icons.verified_user_rounded, size: 14),
+                                                label: const Text('Approve', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: const Color(0xFF10B981),
+                                                  foregroundColor: Colors.white,
+                                                  elevation: 0,
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                ),
                                               ),
                                             ],
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
+                                            const SizedBox(width: 4),
+                                            ElevatedButton.icon(
+                                              onPressed: () => _confirmArchive(profile),
+                                              icon: const Icon(Icons.archive_outlined, size: 14),
+                                              label: const Text('Archive', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFFD97706),
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                 ),
-                              ),
+                              ],
                             );
-                          },
+                          }).toList(),
                         ),
                       ),
-          ),
+                    ),
           if (filtered.isNotEmpty) ...[
             const SizedBox(height: 12),
             AppPaginationControls(

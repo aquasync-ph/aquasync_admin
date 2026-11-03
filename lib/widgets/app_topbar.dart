@@ -47,7 +47,7 @@ class AppTopbar extends StatelessWidget {
     final titles = [
       'Dashboard Overview',
       'Orders & Deliveries Management',
-      'Live Map Tracking & Victoria Dispatch',
+      'Live Map Tracking',
       'Announcements',
       'Customer Reviews & Feedback',
       'Account Management',

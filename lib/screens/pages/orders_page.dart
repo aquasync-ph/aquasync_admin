@@ -729,30 +729,54 @@ class _OrdersPageState extends State<OrdersPage> {
 
     Widget summaryStrip = LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth >= 900) {
+        if (constraints.maxWidth >= 850) {
           return Row(
             children: [
-              Expanded(child: _buildSummaryCard(label: 'Total Orders', value: '$totalCount', icon: Icons.shopping_bag_outlined, color: const Color(0xFF38BDF8))),
+              Expanded(
+                child: _buildSummaryCard(label: 'Total Orders', value: '$totalCount', icon: Icons.shopping_bag_outlined, color: const Color(0xFF38BDF8)),
+              ),
               const SizedBox(width: 14),
-              Expanded(child: _buildSummaryCard(label: 'Pending Approval', value: '$pendingCount', icon: Icons.hourglass_top_rounded, color: const Color(0xFFFCD34D))),
+              Expanded(
+                child: _buildSummaryCard(label: 'Pending Approval', value: '$pendingCount', icon: Icons.hourglass_top_rounded, color: const Color(0xFFFCD34D)),
+              ),
               const SizedBox(width: 14),
-              Expanded(child: _buildSummaryCard(label: 'Awaiting Driver', value: '$awaitingDriverCount', icon: Icons.badge_outlined, color: const Color(0xFF7DD3FC))),
+              Expanded(
+                child: _buildSummaryCard(label: 'Awaiting Driver', value: '$awaitingDriverCount', icon: Icons.badge_outlined, color: const Color(0xFF7DD3FC)),
+              ),
               const SizedBox(width: 14),
-              Expanded(child: _buildSummaryCard(label: 'Completed Orders', value: '$completedCount', icon: Icons.task_alt_rounded, color: const Color(0xFF34D399))),
-            ],
-          );
-        } else {
-          return Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'Total', value: '$totalCount', icon: Icons.shopping_bag_outlined, color: const Color(0xFF38BDF8))),
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'Pending', value: '$pendingCount', icon: Icons.hourglass_top_rounded, color: const Color(0xFFFCD34D))),
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'Awaiting Driver', value: '$awaitingDriverCount', icon: Icons.badge_outlined, color: const Color(0xFF7DD3FC))),
-              SizedBox(width: (constraints.maxWidth - 12) / 2, child: _buildSummaryCard(label: 'Completed', value: '$completedCount', icon: Icons.task_alt_rounded, color: const Color(0xFF34D399))),
+              Expanded(
+                child: _buildSummaryCard(label: 'Completed Orders', value: '$completedCount', icon: Icons.task_alt_rounded, color: const Color(0xFF34D399)),
+              ),
             ],
           );
         }
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 250,
+                child: _buildSummaryCard(label: 'Total Orders', value: '$totalCount', icon: Icons.shopping_bag_outlined, color: const Color(0xFF38BDF8)),
+              ),
+              const SizedBox(width: 14),
+              SizedBox(
+                width: 250,
+                child: _buildSummaryCard(label: 'Pending Approval', value: '$pendingCount', icon: Icons.hourglass_top_rounded, color: const Color(0xFFFCD34D)),
+              ),
+              const SizedBox(width: 14),
+              SizedBox(
+                width: 250,
+                child: _buildSummaryCard(label: 'Awaiting Driver', value: '$awaitingDriverCount', icon: Icons.badge_outlined, color: const Color(0xFF7DD3FC)),
+              ),
+              const SizedBox(width: 14),
+              SizedBox(
+                width: 250,
+                child: _buildSummaryCard(label: 'Completed Orders', value: '$completedCount', icon: Icons.task_alt_rounded, color: const Color(0xFF34D399)),
+              ),
+            ],
+          ),
+        );
       },
     );
 
@@ -797,7 +821,7 @@ class _OrdersPageState extends State<OrdersPage> {
           )
         : null;
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -884,184 +908,175 @@ class _OrdersPageState extends State<OrdersPage> {
           ),
           const SizedBox(height: 16),
 
-          Expanded(
-            child: filtered.isEmpty
-                ? Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
-                    ),
-                    padding: const EdgeInsets.all(40),
-                    child: const Center(
-                      child: Text('No orders found matching search.', style: TextStyle(fontSize: 13, color: Color(0xFF475569))),
-                    ),
-                  )
-                : _isGridView
-                    ? LayoutBuilder(
-                        builder: (context, constraints) {
-                          int crossAxisCount = 3;
-                          if (constraints.maxWidth < 700) {
-                            crossAxisCount = 1;
-                          } else if (constraints.maxWidth < 1100) {
-                            crossAxisCount = 2;
-                          }
-                          return GridView.builder(
-                            itemCount: paginated.length,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: crossAxisCount,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              mainAxisExtent: 250,
-                            ),
-                            itemBuilder: (context, index) => _buildOrderCard(paginated[index]),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
-                          boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
-                        ),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SizedBox(
-                              width: constraints.maxWidth,
-                              height: constraints.maxHeight,
-                              child: ClipRect(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                      child: DataTable(
-                                        dataRowMinHeight: 68,
-                                        dataRowMaxHeight: 76,
-                                        headingRowHeight: 56,
-                                        columnSpacing: 24,
-                                        horizontalMargin: 20,
-                                        columns: const [
-                                          DataColumn(label: Text('ORDER NUMBER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('CUSTOMER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('ADDRESS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('QTY', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('PAYMENT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('TOTAL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                          DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                        ],
-                                        rows: paginated.map((order) {
-                                          final isHighlighted = _isOrderHighlighted(order);
-                                          return animatedDataRow(
-                                            isHighlighted: isHighlighted,
-                                            cells: [
-                                              DataCell(
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                  child: InkWell(
-                                                    onTap: () => widget.onViewDetails(order),
-                                                    borderRadius: BorderRadius.circular(4),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-                                                      child: Text(
-                                                        order.displayId,
-                                                        style: const TextStyle(
-                                                          fontSize: 13.5,
-                                                          color: Color(0xFF0284C7),
-                                                          fontWeight: FontWeight.bold,
-                                                          decoration: TextDecoration.underline,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
+          filtered.isEmpty
+              ? Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
+                  ),
+                  padding: const EdgeInsets.all(40),
+                  child: const Center(
+                    child: Text('No orders found matching search.', style: TextStyle(fontSize: 13, color: Color(0xFF475569))),
+                  ),
+                )
+              : _isGridView
+                  ? LayoutBuilder(
+                      builder: (context, constraints) {
+                        int crossAxisCount = 3;
+                        if (constraints.maxWidth < 700) {
+                          crossAxisCount = 1;
+                        } else if (constraints.maxWidth < 1100) {
+                          crossAxisCount = 2;
+                        }
+                        return GridView.builder(
+                          itemCount: paginated.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            mainAxisExtent: 250,
+                          ),
+                          itemBuilder: (context, index) => _buildOrderCard(paginated[index]),
+                        );
+                      },
+                    )
+                  : Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
+                        boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
+                      ),
+                      child: LayoutBuilder(
+                        builder: (context, tableConstraints) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: tableConstraints.maxWidth),
+                              child: DataTable(
+                                dataRowMinHeight: 68,
+                                dataRowMaxHeight: 76,
+                                headingRowHeight: 56,
+                                columnSpacing: 24,
+                                horizontalMargin: 20,
+                                columns: const [
+                                  DataColumn(label: Text('ORDER NUMBER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('CUSTOMER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('ADDRESS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('QTY', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('PAYMENT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('TOTAL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                  DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                                ],
+                                rows: paginated.map((order) {
+                                  final isHighlighted = _isOrderHighlighted(order);
+                                  return animatedDataRow(
+                                    isHighlighted: isHighlighted,
+                                    cells: [
+                                      DataCell(
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                          child: InkWell(
+                                            onTap: () => widget.onViewDetails(order),
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+                                              child: Text(
+                                                order.displayId,
+                                                style: const TextStyle(
+                                                  fontSize: 13.5,
+                                                  color: Color(0xFF0284C7),
+                                                  fontWeight: FontWeight.bold,
+                                                  decoration: TextDecoration.underline,
                                                 ),
                                               ),
-                                              DataCell(Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: Text(order.customer, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                                              )),
-                                              DataCell(Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: SizedBox(
-                                                  width: 170,
-                                                  child: Column(
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: Text(order.customer, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                                      )),
+                                      DataCell(Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: SizedBox(
+                                          width: 170,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                order.address.isEmpty ? 'No address specified' : order.address,
+                                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 3),
+                                              InkWell(
+                                                onTap: widget.onLocateCustomer != null ? () => widget.onLocateCustomer!(order) : null,
+                                                borderRadius: BorderRadius.circular(4),
+                                                child: const Padding(
+                                                  padding: EdgeInsets.symmetric(vertical: 2.0),
+                                                  child: Row(
                                                     mainAxisSize: MainAxisSize.min,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
+                                                      Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF0284C7)),
+                                                      SizedBox(width: 3),
                                                       Text(
-                                                        order.address.isEmpty ? 'No address specified' : order.address,
-                                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                      const SizedBox(height: 3),
-                                                      InkWell(
-                                                        onTap: widget.onLocateCustomer != null ? () => widget.onLocateCustomer!(order) : null,
-                                                        borderRadius: BorderRadius.circular(4),
-                                                        child: const Padding(
-                                                          padding: EdgeInsets.symmetric(vertical: 2.0),
-                                                          child: Row(
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            children: [
-                                                              Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF0284C7)),
-                                                              SizedBox(width: 3),
-                                                              Text(
-                                                                'View Map',
-                                                                style: TextStyle(
-                                                                  fontSize: 11.5,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Color(0xFF0284C7),
-                                                                  decoration: TextDecoration.underline,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
+                                                        'View Map',
+                                                        style: TextStyle(
+                                                          fontSize: 11.5,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Color(0xFF0284C7),
+                                                          decoration: TextDecoration.underline,
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                              )),
-                                              DataCell(Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: Text('${order.qty}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
-                                              )),
-                                              DataCell(Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                                child: _buildPaymentCell(order),
-                                              )),
-                                              DataCell(Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: Text('₱${order.totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                                              )),
-                                              DataCell(Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: OrderStatusBadge(status: order.status),
-                                              )),
-                                              DataCell(Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                child: _buildOrderActionButtons(order),
-                                              )),
+                                              ),
                                             ],
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                          ),
+                                        ),
+                                      )),
+                                      DataCell(Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: Text('${order.qty}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
+                                      )),
+                                      DataCell(Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                        child: _buildPaymentCell(order),
+                                      )),
+                                      DataCell(Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: Text('₱${order.totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                                      )),
+                                      DataCell(Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: OrderStatusBadge(status: order.status),
+                                      )),
+                                      DataCell(Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: _buildOrderActionButtons(order),
+                                      )),
+                                    ],
+                                  );
+                                }).toList(),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       ),
-          ),
+                    ),
           if (filtered.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             AppPaginationControls(
               totalItems: filtered.length,
               currentPage: _currentPage,

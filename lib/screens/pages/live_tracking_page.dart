@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -51,6 +52,8 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
 
   // Interactivity state
   String _customerSearchQuery = '';
+  int _customerCurrentPage = 1;
+  int _customerItemsPerPage = 10;
 
   // Overlay Toggles
   bool _showCustomers = true;
@@ -1143,6 +1146,17 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
       return c.fullName.toLowerCase().contains(q) || c.address.toLowerCase().contains(q);
     }).toList();
 
+    final totalCustomers = filteredCustomers.length;
+    final totalCustomerPages = max(1, (totalCustomers / _customerItemsPerPage).ceil());
+    if (_customerCurrentPage > totalCustomerPages) {
+      _customerCurrentPage = totalCustomerPages;
+    }
+    final customerStartIndex = (_customerCurrentPage - 1) * _customerItemsPerPage;
+    final customerEndIndex = (customerStartIndex + _customerItemsPerPage).clamp(0, totalCustomers);
+    final paginatedCustomers = totalCustomers > 0
+        ? filteredCustomers.sublist(customerStartIndex, customerEndIndex)
+        : <CustomerModel>[];
+
     Widget summaryStrip = LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth >= 900) {
@@ -1239,57 +1253,6 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Actions
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Live Map Tracking & Geofence Control',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A))),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Interactive map with $_stationName station location, operational boundary radius, live drivers, and customer residence pins.',
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF5A5E63)),
-                    ),
-                  ],
-                ),
-              ),
-              Wrap(
-                spacing: 10,
-                runSpacing: 8,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _openEditStationModal,
-                    icon: const Icon(Icons.settings_suggest_rounded, size: 16),
-                    label: const Text('Configure Station'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0D9488),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      _loadInitialStationSettings();
-                      _fetchInitialDriverLocations();
-                      widget.onRefresh();
-                    },
-                    icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text('Refresh Map'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF38BDF8),
-                      side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           summaryStrip,
           const SizedBox(height: 16),
 
@@ -1889,7 +1852,10 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
 
                             // Search Box
                             TextField(
-                              onChanged: (v) => setState(() => _customerSearchQuery = v),
+                              onChanged: (v) => setState(() {
+                                _customerSearchQuery = v;
+                                _customerCurrentPage = 1;
+                              }),
                               style: const TextStyle(color: Color(0xFF0B1D2A), fontSize: 13),
                               decoration: InputDecoration(
                                 isDense: true,
@@ -1909,7 +1875,7 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
                         ),
                       ),
 
-                      if (filteredCustomers.isEmpty)
+                      if (paginatedCustomers.isEmpty)
                         const SliverToBoxAdapter(
                           child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 20),
@@ -1918,11 +1884,11 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
                             ),
                           ),
                         )
-                      else
+                      else ...[
                         SliverList(
                           delegate: SliverChildBuilderDelegate(
                             (context, index) {
-                              final cust = filteredCustomers[index];
+                              final cust = paginatedCustomers[index];
                               final custPos = LatLng(cust.latitude, cust.longitude);
                               final dist = _calculateDistanceInKm(_stationCenter, custPos);
                               final inside = dist <= _geofenceRadiusKm;
@@ -1990,9 +1956,26 @@ class _LiveTrackingPageState extends State<LiveTrackingPage> with TickerProvider
                                 ),
                               );
                             },
-                            childCount: filteredCustomers.length,
+                            childCount: paginatedCustomers.length,
                           ),
                         ),
+                        if (filteredCustomers.isNotEmpty)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 12, bottom: 8),
+                              child: AppPaginationControls(
+                                totalItems: filteredCustomers.length,
+                                currentPage: _customerCurrentPage,
+                                itemsPerPage: _customerItemsPerPage,
+                                onPageChanged: (page) => setState(() => _customerCurrentPage = page),
+                                onItemsPerPageChanged: (perPage) => setState(() {
+                                  _customerItemsPerPage = perPage;
+                                  _customerCurrentPage = 1;
+                                }),
+                              ),
+                            ),
+                          ),
+                      ],
                     ],
                   ),
                 );

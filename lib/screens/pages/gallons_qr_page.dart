@@ -16,6 +16,7 @@ class GallonsQrPage extends StatefulWidget {
   final VoidCallback onRefresh;
   final String? highlightQuery;
   final VoidCallback? onClearHighlight;
+  final Function(GallonItemModel)? onLocateCustomer;
 
   const GallonsQrPage({
     super.key,
@@ -30,6 +31,7 @@ class GallonsQrPage extends StatefulWidget {
     required this.onRefresh,
     this.highlightQuery,
     this.onClearHighlight,
+    this.onLocateCustomer,
   });
 
   @override
@@ -393,6 +395,59 @@ class _GallonsQrPageState extends State<GallonsQrPage> {
     );
   }
 
+  Widget _buildActionButtons() {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        SegmentedButton<bool>(
+          style: SegmentedButton.styleFrom(
+            selectedBackgroundColor: const Color(0xFF0098DA),
+            selectedForegroundColor: Colors.white,
+            backgroundColor: const Color(0xFFE6F3FA),
+            foregroundColor: const Color(0xFF0B1D2A),
+            side: BorderSide(color: const Color(0xFF5A5E63).withValues(alpha: 0.3)),
+          ),
+          segments: const [
+            ButtonSegment(value: false, label: Text('Active', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+            ButtonSegment(value: true, label: Text('Archived', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+          ],
+          selected: {_showArchived},
+          onSelectionChanged: (set) => setState(() {
+            _showArchived = set.first;
+            _currentPage = 1;
+          }),
+        ),
+        if (widget.onBatchGenerateQr != null) ...[
+          OutlinedButton.icon(
+            onPressed: widget.onBatchGenerateQr,
+            icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+            label: const Text('Batch Generate QR', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF0284C7),
+              side: const BorderSide(color: Color(0xFF0284C7), width: 1.5),
+              backgroundColor: const Color(0xFFE0F2FE),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
+        ElevatedButton.icon(
+          onPressed: widget.onAddGallon,
+          icon: const Icon(Icons.add_rounded, size: 18),
+          label: const Text('Register Gallon', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0284C7),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filteredGallons;
@@ -444,81 +499,12 @@ class _GallonsQrPageState extends State<GallonsQrPage> {
       },
     );
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHighlightBanner(),
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 16,
-            runSpacing: 12,
-            children: [
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Gallons & QR Registry', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                    SizedBox(height: 4),
-                    Text('AQUAZONE Water Refill Station • Track physical containers with 1-to-1 QR codes and Customer initial markers.', style: TextStyle(fontSize: 13, color: Color(0xFF475569))),
-                  ],
-                ),
-              ),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  SegmentedButton<bool>(
-                    style: SegmentedButton.styleFrom(
-                      selectedBackgroundColor: const Color(0xFF0098DA),
-                      selectedForegroundColor: Colors.white,
-                      backgroundColor: const Color(0xFFE6F3FA),
-                      foregroundColor: const Color(0xFF0B1D2A),
-                      side: BorderSide(color: const Color(0xFF5A5E63).withValues(alpha: 0.3)),
-                    ),
-                    segments: const [
-                      ButtonSegment(value: false, label: Text('Active', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
-                      ButtonSegment(value: true, label: Text('Archived', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
-                    ],
-                    selected: {_showArchived},
-                    onSelectionChanged: (set) => setState(() {
-                      _showArchived = set.first;
-                      _currentPage = 1;
-                    }),
-                  ),
-                  if (widget.onBatchGenerateQr != null)
-                    OutlinedButton.icon(
-                      onPressed: widget.onBatchGenerateQr,
-                      icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
-                      label: const Text('Batch Generate QR', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF0284C7),
-                        side: const BorderSide(color: Color(0xFF0284C7), width: 1.5),
-                        backgroundColor: const Color(0xFFE0F2FE),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                  ElevatedButton.icon(
-                    onPressed: widget.onAddGallon,
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: const Text('Register Gallon', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0284C7),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
           summaryStrip,
           const SizedBox(height: 20),
           Container(
@@ -531,86 +517,82 @@ class _GallonsQrPageState extends State<GallonsQrPage> {
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                if (constraints.maxWidth < 640) {
+                if (constraints.maxWidth >= 1050) {
+                  return Row(
+                    children: [
+                      Expanded(child: _buildSearchField()),
+                      const SizedBox(width: 12),
+                      SizedBox(width: 210, child: _buildStatusDropdown()),
+                      const SizedBox(width: 12),
+                      _buildActionButtons(),
+                    ],
+                  );
+                } else if (constraints.maxWidth >= 640) {
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(child: _buildSearchField()),
+                          const SizedBox(width: 12),
+                          SizedBox(width: 210, child: _buildStatusDropdown()),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _buildActionButtons(),
+                    ],
+                  );
+                } else {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildSearchField(),
                       const SizedBox(height: 12),
                       _buildStatusDropdown(),
+                      const SizedBox(height: 12),
+                      _buildActionButtons(),
                     ],
                   );
                 }
-                return Row(
-                  children: [
-                    Expanded(child: _buildSearchField()),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      flex: 0,
-                      child: SizedBox(width: 220, child: _buildStatusDropdown()),
-                    ),
-                  ],
-                );
               },
             ),
           ),
           const SizedBox(height: 20),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
-                boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
-              ),
-              child: filtered.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(40),
-                      child: Center(
-                        child: Text(_showArchived ? 'No retired / archived gallon containers.' : 'No active gallon containers found matching search.', style: const TextStyle(fontSize: 13, color: Color(0xFF475569))),
-                      ),
-                    )
-                  : LayoutBuilder(
-                      builder: (context, constraints) {
-                        return SizedBox(
-                          width: constraints.maxWidth,
-                          height: constraints.maxHeight,
-                          child: ClipRect(
-                            child: ScrollConfiguration(
-                              behavior: ScrollConfiguration.of(context).copyWith(
-                                dragDevices: {
-                                  PointerDeviceKind.touch,
-                                  PointerDeviceKind.mouse,
-                                },
-                              ),
-                              child: Scrollbar(
-                                controller: _verticalScrollController,
-                                thumbVisibility: true,
-                                child: SingleChildScrollView(
-                                  controller: _verticalScrollController,
-                                  scrollDirection: Axis.vertical,
-                                  child: Scrollbar(
-                                    controller: _horizontalScrollController,
-                                    thumbVisibility: true,
-                                    notificationPredicate: (notif) => notif.depth == 0,
-                                    child: SingleChildScrollView(
-                                      controller: _horizontalScrollController,
-                                      scrollDirection: Axis.horizontal,
-                                      child: ConstrainedBox(
-                                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                  child: DataTable(
-                                    dataRowMinHeight: 58,
-                                    dataRowMaxHeight: 62,
-                                    headingRowHeight: 50,
-                                    columnSpacing: 22,
-                                    columns: const [
-                                      DataColumn(label: Text('ASSIGNED CUSTOMER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                      DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                      DataColumn(label: Text('LOCATION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                      DataColumn(label: Text('QR STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                      DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
-                                    ],
-                                    rows: paginated.map((gallon) {
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.30)),
+              boxShadow: const [BoxShadow(color: Color(0x140284C7), blurRadius: 16, offset: Offset(0, 4))],
+            ),
+            child: filtered.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Center(
+                      child: Text(_showArchived ? 'No retired / archived gallon containers.' : 'No active gallon containers found matching search.', style: const TextStyle(fontSize: 13, color: Color(0xFF475569))),
+                    ),
+                  )
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        controller: _horizontalScrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                          child: DataTable(
+                            dataRowMinHeight: 58,
+                            dataRowMaxHeight: 62,
+                            headingRowHeight: 50,
+                            columnSpacing: 22,
+                            columns: const [
+                              DataColumn(label: Text('ASSIGNED CUSTOMER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                              DataColumn(label: Text('STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                              DataColumn(label: Text('LOCATION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                              DataColumn(label: Text('QR STATUS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                              DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
+                            ],
+                            rows: paginated.map((gallon) {
                               final isHighlighted = _isGallonHighlighted(gallon);
                               final isAssigned = gallon.assigned.isNotEmpty &&
                                   !gallon.assigned.toLowerCase().contains('available') &&
@@ -618,213 +600,249 @@ class _GallonsQrPageState extends State<GallonsQrPage> {
                               return animatedDataRow(
                                 isHighlighted: isHighlighted,
                                 cells: [
-                                          DataCell(
-                                            isAssigned
-                                                ? Row(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      Container(
-                                                        width: 34,
-                                                        height: 34,
-                                                        decoration: BoxDecoration(
-                                                          color: const Color(0xFFE0F2FE),
-                                                          shape: BoxShape.circle,
-                                                          border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.4)),
-                                                        ),
-                                                        alignment: Alignment.center,
-                                                        child: Text(
-                                                          _getInitialsBadge(gallon.assigned),
-                                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 10),
-                                                      Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Text(
-                                                            _formatInitialAndSurname(gallon.assigned),
-                                                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                                                          ),
-                                                          if (gallon.borrowedAt.isNotEmpty && gallon.borrowedAt != 'Not yet recorded') ...[
-                                                            const SizedBox(height: 2),
-                                                            Text('Borrowed: ${gallon.borrowedAt}', style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
-                                                          ],
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  )
-                                                : Row(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      Container(
-                                                        width: 34,
-                                                        height: 34,
-                                                        decoration: BoxDecoration(
-                                                          color: const Color(0xFFF1F5F9),
-                                                          shape: BoxShape.circle,
-                                                          border: Border.all(color: const Color(0xFFCBD5E1)),
-                                                        ),
-                                                        alignment: Alignment.center,
-                                                        child: const Icon(Icons.storefront_rounded, size: 16, color: Color(0xFF0284C7)),
-                                                      ),
-                                                      const SizedBox(width: 10),
-                                                      const Text(
-                                                        'Available in Station (AQUAZONE)',
-                                                        style: TextStyle(fontSize: 12, color: Color(0xFF475569), fontStyle: FontStyle.italic),
-                                                      ),
-                                                    ],
+                                  DataCell(
+                                    isAssigned
+                                        ? Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 34,
+                                                height: 34,
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFE0F2FE),
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.4)),
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  _getInitialsBadge(gallon.assigned),
+                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    _formatInitialAndSurname(gallon.assigned),
+                                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                                                   ),
+                                                  if (gallon.borrowedAt.isNotEmpty && gallon.borrowedAt != 'Not yet recorded') ...[
+                                                    const SizedBox(height: 2),
+                                                    Text('Borrowed: ${gallon.borrowedAt}', style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                                                  ],
+                                                ],
+                                              ),
+                                            ],
+                                          )
+                                        : Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 34,
+                                                height: 34,
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFF1F5F9),
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(color: const Color(0xFFCBD5E1)),
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: const Icon(Icons.storefront_rounded, size: 16, color: Color(0xFF0284C7)),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              const Text(
+                                                'Available in Station (AQUAZONE)',
+                                                style: TextStyle(fontSize: 12, color: Color(0xFF475569), fontStyle: FontStyle.italic),
+                                              ),
+                                            ],
                                           ),
-                                          DataCell(GallonStatusBadge(status: gallon.status)),
-                                          DataCell(Text(gallon.location, style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
-                                          DataCell(Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: gallon.hasQr ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
-                                              borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  DataCell(GallonStatusBadge(status: gallon.status)),
+                                  DataCell(
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: SizedBox(
+                                        width: 180,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              gallon.location.isEmpty ? 'Aqua Pure Water Station' : gallon.location,
+                                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            child: Text(
-                                              gallon.hasQr ? 'QR REGISTERED' : 'NO QR',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                                color: gallon.hasQr ? const Color(0xFF166534) : const Color(0xFF92400E),
+                                            const SizedBox(height: 3),
+                                            InkWell(
+                                              onTap: widget.onLocateCustomer != null ? () => widget.onLocateCustomer!(gallon) : null,
+                                              borderRadius: BorderRadius.circular(4),
+                                              child: const Padding(
+                                                padding: EdgeInsets.symmetric(vertical: 2.0),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF0284C7)),
+                                                    SizedBox(width: 3),
+                                                    Text(
+                                                      'View Map',
+                                                      style: TextStyle(
+                                                        fontSize: 11.5,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFF0284C7),
+                                                        decoration: TextDecoration.underline,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          )),
-                                          DataCell(
-                                            !_showArchived
-                                                ? Row(
-                                                    children: [
-                                                      if (!gallon.hasQr)
-                                                        ElevatedButton.icon(
-                                                          onPressed: () => widget.onGenerateQr(gallon),
-                                                          icon: const Icon(Icons.qr_code_2_rounded, size: 15),
-                                                          label: const Text('Generate QR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: const Color(0xFF0284C7),
-                                                            foregroundColor: Colors.white,
-                                                            elevation: 0,
-                                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                          ),
-                                                        )
-                                                      else
-                                                        ElevatedButton.icon(
-                                                          onPressed: () => widget.onViewQr(gallon),
-                                                          icon: const Icon(Icons.qr_code_rounded, size: 15),
-                                                          label: const Text('View QR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: const Color(0xFF1B4965),
-                                                            foregroundColor: Colors.white,
-                                                            elevation: 0,
-                                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                          ),
-                                                        ),
-                                                      const SizedBox(width: 6),
-                                                      Tooltip(
-                                                        message: 'Edit Gallon',
-                                                        child: ElevatedButton(
-                                                          onPressed: () => widget.onEditGallon(gallon),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: const Color(0xFF0098DA),
-                                                            foregroundColor: Colors.white,
-                                                            elevation: 0,
-                                                            padding: EdgeInsets.zero,
-                                                            minimumSize: const Size(36, 36),
-                                                            maximumSize: const Size(36, 36),
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                          ),
-                                                          child: const Icon(Icons.edit_rounded, size: 16),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 6),
-                                                      Tooltip(
-                                                        message: 'Gallon History',
-                                                        child: ElevatedButton(
-                                                          onPressed: () => widget.onViewHistory(gallon),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: const Color(0xFF5A5E63),
-                                                            foregroundColor: Colors.white,
-                                                            elevation: 0,
-                                                            padding: EdgeInsets.zero,
-                                                            minimumSize: const Size(36, 36),
-                                                            maximumSize: const Size(36, 36),
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                          ),
-                                                          child: const Icon(Icons.history_rounded, size: 16),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 6),
-                                                      Tooltip(
-                                                        message: 'Retire Gallon',
-                                                        child: ElevatedButton(
-                                                          onPressed: () => _confirmRetire(gallon),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: const Color(0xFFD97706),
-                                                            foregroundColor: Colors.white,
-                                                            elevation: 0,
-                                                            padding: EdgeInsets.zero,
-                                                            minimumSize: const Size(36, 36),
-                                                            maximumSize: const Size(36, 36),
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                          ),
-                                                          child: const Icon(Icons.archive_outlined, size: 16),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                : Row(
-                                                    children: [
-                                                      ElevatedButton.icon(
-                                                        onPressed: () => _confirmRestore(gallon),
-                                                        icon: const Icon(Icons.unarchive_outlined, size: 15),
-                                                        label: const Text('Restore', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: const Color(0xFF10B981),
-                                                          foregroundColor: Colors.white,
-                                                          elevation: 0,
-                                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Tooltip(
-                                                        message: 'Delete Permanently',
-                                                        child: ElevatedButton(
-                                                          onPressed: () => _confirmDeletePermanently(gallon),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: const Color(0xFFDC2626),
-                                                            foregroundColor: Colors.white,
-                                                            elevation: 0,
-                                                            padding: EdgeInsets.zero,
-                                                            minimumSize: const Size(36, 36),
-                                                            maximumSize: const Size(36, 36),
-                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                          ),
-                                                          child: const Icon(Icons.delete_forever_rounded, size: 16),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
+                                  DataCell(Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: gallon.hasQr ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      gallon.hasQr ? 'QR REGISTERED' : 'NO QR',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: gallon.hasQr ? const Color(0xFF166534) : const Color(0xFF92400E),
+                                      ),
+                                    ),
+                                  )),
+                                  DataCell(
+                                    !_showArchived
+                                        ? Row(
+                                            children: [
+                                              if (!gallon.hasQr)
+                                                ElevatedButton.icon(
+                                                  onPressed: () => widget.onGenerateQr(gallon),
+                                                  icon: const Icon(Icons.qr_code_2_rounded, size: 15),
+                                                  label: const Text('Generate QR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFF0284C7),
+                                                    foregroundColor: Colors.white,
+                                                    elevation: 0,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                  ),
+                                                )
+                                              else
+                                                ElevatedButton.icon(
+                                                  onPressed: () => widget.onViewQr(gallon),
+                                                  icon: const Icon(Icons.qr_code_rounded, size: 15),
+                                                  label: const Text('View QR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFF1B4965),
+                                                    foregroundColor: Colors.white,
+                                                    elevation: 0,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                  ),
+                                                ),
+                                              const SizedBox(width: 6),
+                                              Tooltip(
+                                                message: 'Edit Gallon',
+                                                child: ElevatedButton(
+                                                  onPressed: () => widget.onEditGallon(gallon),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFF0098DA),
+                                                    foregroundColor: Colors.white,
+                                                    elevation: 0,
+                                                    padding: EdgeInsets.zero,
+                                                    minimumSize: const Size(36, 36),
+                                                    maximumSize: const Size(36, 36),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                  ),
+                                                  child: const Icon(Icons.edit_rounded, size: 16),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Tooltip(
+                                                message: 'Gallon History',
+                                                child: ElevatedButton(
+                                                  onPressed: () => widget.onViewHistory(gallon),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFF5A5E63),
+                                                    foregroundColor: Colors.white,
+                                                    elevation: 0,
+                                                    padding: EdgeInsets.zero,
+                                                    minimumSize: const Size(36, 36),
+                                                    maximumSize: const Size(36, 36),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                  ),
+                                                  child: const Icon(Icons.history_rounded, size: 16),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Tooltip(
+                                                message: 'Retire Gallon',
+                                                child: ElevatedButton(
+                                                  onPressed: () => _confirmRetire(gallon),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFFD97706),
+                                                    foregroundColor: Colors.white,
+                                                    elevation: 0,
+                                                    padding: EdgeInsets.zero,
+                                                    minimumSize: const Size(36, 36),
+                                                    maximumSize: const Size(36, 36),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                  ),
+                                                  child: const Icon(Icons.archive_outlined, size: 16),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : Row(
+                                            children: [
+                                              ElevatedButton.icon(
+                                                onPressed: () => _confirmRestore(gallon),
+                                                icon: const Icon(Icons.unarchive_outlined, size: 15),
+                                                label: const Text('Restore', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: const Color(0xFF10B981),
+                                                  foregroundColor: Colors.white,
+                                                  elevation: 0,
+                                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Tooltip(
+                                                message: 'Delete Permanently',
+                                                child: ElevatedButton(
+                                                  onPressed: () => _confirmDeletePermanently(gallon),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFFDC2626),
+                                                    foregroundColor: Colors.white,
+                                                    elevation: 0,
+                                                    padding: EdgeInsets.zero,
+                                                    minimumSize: const Size(36, 36),
+                                                    maximumSize: const Size(36, 36),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                  ),
+                                                  child: const Icon(Icons.delete_forever_rounded, size: 16),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
                           ),
                         ),
-                      ),
-                    ),
-                );
-                      },
-                    ),
-            ),
+                      );
+                    },
+                  ),
           ),
           if (filtered.isNotEmpty) ...[
             const SizedBox(height: 12),

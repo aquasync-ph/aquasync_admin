@@ -102,29 +102,32 @@ void _printHtmlInIframe(String htmlContent) {
     fullHtml = fullHtml.replaceFirst('<body', '<body class="aquasync-print-padding"');
   }
 
-  // Method 1: Direct Popup Window with auto-print (Primary for Web)
   try {
-    final popupWin = html.window.open('', '_blank', 'width=950,height=900,scrollbars=yes,resizable=yes');
-    if (popupWin != null) {
-      final dynamic win = popupWin;
-      final dynamic pDoc = win.document;
-      pDoc.open();
-      pDoc.write(fullHtml);
-      pDoc.close();
-      return;
-    }
+    final blob = html.Blob([fullHtml], 'text/html');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    
+    // Method 1: Blob URL in new window/tab
+    html.window.open(url, '_blank', 'width=950,height=900,scrollbars=yes,resizable=yes');
+    Future.delayed(const Duration(minutes: 2), () {
+      try { html.Url.revokeObjectUrl(url); } catch (_) {}
+    });
+    return;
   } catch (_) {
     // If popup is blocked by browser, continue to iframe fallback
   }
 
-  // Method 2: Off-screen non-zero iframe (Fallback if popups are blocked)
+  // Method 2: Off-screen iframe with Blob URL (Fallback if popups are blocked)
   final existingIframe = html.document.getElementById('aquasync_print_iframe');
   if (existingIframe != null) {
     existingIframe.remove();
   }
 
+  final blob = html.Blob([fullHtml], 'text/html');
+  final url = html.Url.createObjectUrlFromBlob(blob);
+
   final iframe = html.IFrameElement()
     ..id = 'aquasync_print_iframe'
+    ..src = url
     ..style.position = 'fixed'
     ..style.left = '-9999px'
     ..style.top = '-9999px'
@@ -136,22 +139,9 @@ void _printHtmlInIframe(String htmlContent) {
 
   html.document.body!.children.add(iframe);
 
-  final dynamic win = iframe.contentWindow;
-  if (win != null) {
-    final dynamic doc = win.document;
-    doc.open();
-    doc.write(fullHtml);
-    doc.close();
-
-    Future.delayed(const Duration(milliseconds: 400), () {
-      try {
-        win.focus();
-        win.print();
-      } catch (_) {
-        html.window.print();
-      }
-    });
-  }
+  Future.delayed(const Duration(minutes: 2), () {
+    try { html.Url.revokeObjectUrl(url); } catch (_) {}
+  });
 }
 
 void printReceiptHtml(Map<String, dynamic> sale) {

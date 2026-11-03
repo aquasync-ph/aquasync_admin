@@ -1265,6 +1265,36 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
     });
   }
 
+  void _locateGallonOnMap(GallonItemModel gallon) {
+    CustomerModel? customer;
+    if (gallon.customerId != null && gallon.customerId!.isNotEmpty) {
+      customer = _customers.where((c) => c.id == gallon.customerId).firstOrNull;
+    }
+    if (customer == null && gallon.assigned.isNotEmpty && !gallon.assigned.toLowerCase().contains('available') && gallon.assigned != '—') {
+      customer = _customers.where((c) => c.fullName.toLowerCase() == gallon.assigned.toLowerCase()).firstOrNull;
+    }
+
+    if (customer == null) {
+      customer = CustomerModel(
+        id: gallon.customerId ?? '',
+        fullName: gallon.assigned.isNotEmpty && gallon.assigned != '—' ? gallon.assigned : 'Station Stock (${gallon.gallonCode})',
+        phone: '',
+        address: gallon.location,
+        latitude: SupabaseService.stationLatitude,
+        longitude: SupabaseService.stationLongitude,
+        rfidUid: '',
+        isRfidActive: false,
+        isActive: true,
+        createdAt: '',
+      );
+    }
+
+    setState(() {
+      _initialFocusCustomerMap = customer;
+      _selectedPageIndex = 2; // Live Map
+    });
+  }
+
   void _confirmLogout() {
     showDialog(
       context: context,
@@ -1443,6 +1473,7 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
           onRefresh: _loadSupabaseData,
           highlightQuery: _highlightQuery,
           onClearHighlight: _clearHighlight,
+          onLocateCustomer: _locateGallonOnMap,
         );
       case 9:
         return PromosPage(
