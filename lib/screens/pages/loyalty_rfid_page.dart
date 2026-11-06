@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/models.dart';
+import '../../services/supabase_service.dart';
 import '../../widgets/widgets.dart';
 
 class LoyaltyRfidPage extends StatefulWidget {
@@ -26,14 +27,45 @@ class _LoyaltyRfidPageState extends State<LoyaltyRfidPage> {
   String _searchQuery = '';
   int _currentPage = 1;
   int _itemsPerPage = 10;
+  List<Map<String, dynamic>> _unassignedCards = [];
+  bool _loadingUnassigned = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnassignedCards();
+  }
+
+  Future<void> _loadUnassignedCards() async {
+    setState(() => _loadingUnassigned = true);
+    try {
+      final list = await SupabaseService.fetchUnassignedRfidCards();
+      if (mounted) {
+        setState(() {
+          _unassignedCards = list;
+          _loadingUnassigned = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingUnassigned = false);
+    }
+  }
+
+  Future<void> _deleteUnassigned(String id) async {
+    try {
+      await SupabaseService.deleteUnassignedRfidCard(id);
+      _loadUnassignedCards();
+    } catch (_) {}
+  }
 
   List<CustomerModel> get _filteredCustomers {
-    if (_searchQuery.trim().isEmpty) return widget.customers;
-    final q = _searchQuery.toLowerCase().trim();
+    final query = (_searchQuery ?? '').toLowerCase().trim();
+    if (query.isEmpty) return widget.customers;
     return widget.customers.where((c) {
-      return c.fullName.toLowerCase().contains(q) ||
-          c.rfidUid.toLowerCase().contains(q) ||
-          c.phone.toLowerCase().contains(q);
+      final name = (c.fullName ?? '').toLowerCase();
+      final uid = (c.rfidUid ?? '').toLowerCase();
+      final phone = (c.phone ?? '').toLowerCase();
+      return name.contains(query) || uid.contains(query) || phone.contains(query);
     }).toList();
   }
 
@@ -72,6 +104,118 @@ class _LoyaltyRfidPageState extends State<LoyaltyRfidPage> {
     );
   }
 
+  Widget _buildUnassignedCardsQueue() {
+    if (_loadingUnassigned || _unassignedCards.isEmpty) {
+      return const SizedBox();
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F9FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.4)),
+        boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 10, offset: Offset(0, 3))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.nfc_rounded, color: Color(0xFF0284C7), size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Live Scanned RFID Inventory (${_unassignedCards.length})',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      ),
+                      const Text(
+                        'Scanned by ESP32/ESP8266 Hardware Scanner. Ready to bind to customers.',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, size: 20, color: Color(0xFF0284C7)),
+                onPressed: _loadUnassignedCards,
+                tooltip: 'Refresh Scanned Inventory',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: _unassignedCards.map((card) {
+              final uidStr = card['code']?.toString() ?? '';
+              final cardId = card['id']?.toString() ?? '';
+
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF38BDF8)),
+                  boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 4, offset: Offset(0, 2))],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.badge_outlined, size: 18, color: Color(0xFF0284C7)),
+                    const SizedBox(width: 8),
+                    Text(
+                      uidStr,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F172A), fontFamily: 'monospace'),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (widget.customers.isNotEmpty) {
+                          widget.onAssignRfid(widget.customers.first);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0284C7),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text('Assign', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 16, color: Color(0xFF94A3B8)),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => _deleteUnassigned(cardId),
+                      tooltip: 'Remove',
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final rewardReadyCustomers = widget.customers.where((c) => widget.getGallonsPurchased(c) >= 15).toList();
@@ -91,8 +235,8 @@ class _LoyaltyRfidPageState extends State<LoyaltyRfidPage> {
             : 12.0;
 
     int totalCustomers = widget.customers.length;
-    int rfidAssigned = widget.customers.where((c) => c.rfidUid.isNotEmpty).length;
-    int activeCards = widget.customers.where((c) => c.rfidUid.isNotEmpty && c.isRfidActive).length;
+    int rfidAssigned = widget.customers.where((c) => (c.rfidUid ?? '').isNotEmpty).length;
+    int activeCards = widget.customers.where((c) => (c.rfidUid ?? '').isNotEmpty && c.isRfidActive == true).length;
     int rewardReady = rewardReadyCustomers.length;
 
     Widget summaryStrip = LayoutBuilder(
@@ -131,6 +275,9 @@ class _LoyaltyRfidPageState extends State<LoyaltyRfidPage> {
         children: [
           summaryStrip,
           const SizedBox(height: 20),
+
+          // Unassigned Live Scanned RFID Hardware Cards Section
+          _buildUnassignedCardsQueue(),
 
           if (rewardReadyCustomers.isNotEmpty) ...[
             Container(
@@ -239,14 +386,16 @@ class _LoyaltyRfidPageState extends State<LoyaltyRfidPage> {
                               DataColumn(label: Text('ACTION', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                             ],
                             rows: paginated.map((cust) {
-                              final hasRfid = cust.rfidUid.isNotEmpty;
+                              final uidVal = cust.rfidUid ?? '';
+                              final nameVal = cust.fullName ?? 'Customer';
+                              final hasRfid = uidVal.isNotEmpty;
                               final gallonsPurchased = widget.getGallonsPurchased(cust);
                               final isRewardReady = gallonsPurchased >= 15;
 
                               return DataRow(
                                 cells: [
-                                  DataCell(Text(cust.fullName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)))),
-                                  DataCell(Text(hasRfid ? cust.rfidUid : 'Not Assigned', style: TextStyle(fontSize: 13, color: hasRfid ? const Color(0xFF0284C7) : const Color(0xFF475569), fontWeight: hasRfid ? FontWeight.bold : FontWeight.normal))),
+                                  DataCell(Text(nameVal, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)))),
+                                  DataCell(Text(hasRfid ? uidVal : 'Not Assigned', style: TextStyle(fontSize: 13, color: hasRfid ? const Color(0xFF0284C7) : const Color(0xFF475569), fontWeight: hasRfid ? FontWeight.bold : FontWeight.normal))),
                                   DataCell(Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(color: !hasRfid ? const Color(0xFFF1F5F9) : cust.isRfidActive ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(999)),

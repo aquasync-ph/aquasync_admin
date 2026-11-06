@@ -828,6 +828,7 @@ class SupabaseService {
   }
 
   /// Assign Customer Loyalty RFID card UID to customer in public.rfid_qr_records
+  /// Strictly enforces 1-to-1 rule: 1 Customer = 1 RFID Card, and 1 Card UID = 1 Unique Customer.
   static Future<void> assignCustomerRfid({
     required String customerId,
     required String rfidUid,
@@ -838,47 +839,64 @@ class SupabaseService {
       throw Exception('RFID UID cannot be empty.');
     }
 
-    // 1. Duplicate check in public.rfid_qr_records
     try {
-      final existing = await client
+      // 1. Strict Duplicate Check across all cards
+      final existingRecords = await client
           .from('rfid_qr_records')
-          .select('customer_id')
+          .select('id, customer_id, profiles:customer_id(full_name)')
           .eq('code', trimmedUid)
-          .eq('code_type', 'RFID')
-          .maybeSingle();
+          .eq('code_type', 'RFID');
 
-      if (existing != null &&
-          existing['customer_id'] != null &&
-          existing['customer_id'] != customerId) {
-        throw Exception('RFID UID "$trimmedUid" is already registered to another customer.');
-      }
-    } catch (e) {
-      if (e.toString().contains('already registered')) rethrow;
-    }
+      if (existingRecords.isNotEmpty) {
+        final existingByCode = existingRecords.first;
+        final assignedCustomerId = existingByCode['customer_id']?.toString();
 
-    // 2. Upsert in public.rfid_qr_records (the actual schema table for RFID)
-    try {
-      final existingRecord = await client
-          .from('rfid_qr_records')
-          .select('id')
-          .eq('customer_id', customerId)
-          .eq('code_type', 'RFID')
-          .maybeSingle();
+        // If this exact card UID is ALREADY assigned to a DIFFERENT customer
+        if (assignedCustomerId != null &&
+            assignedCustomerId.isNotEmpty &&
+            assignedCustomerId != customerId) {
+          
+          String otherName = 'another customer';
+          if (existingByCode['profiles'] != null && existingByCode['profiles'] is Map) {
+            otherName = existingByCode['profiles']['full_name']?.toString() ?? 'another customer';
+          }
+          
+          throw Exception('RFID UID "$trimmedUid" is already assigned to $otherName. A card UID cannot be reused by multiple users.');
+        }
 
-      if (existingRecord != null) {
+        // Clean up any old/previous RFID cards assigned to this customer so they keep strictly ONE active card
+        await client
+            .from('rfid_qr_records')
+            .delete()
+            .eq('customer_id', customerId)
+            .eq('code_type', 'RFID')
+            .neq('id', existingByCode['id']);
+
+        // Bind/update the scanned card record to this customer
         await client.from('rfid_qr_records').update({
-          'code': trimmedUid,
-          'is_active': isActive,
-        }).eq('id', existingRecord['id']);
-      } else {
-        await client.from('rfid_qr_records').insert({
           'customer_id': customerId,
-          'code': trimmedUid,
-          'code_type': 'RFID',
           'is_active': isActive,
-          'created_at': DateTime.now().toIso8601String(),
-        });
+        }).eq('id', existingByCode['id']);
+
+        return;
       }
+
+      // 2. If card code is brand new (not scanned yet in database):
+      // Clean up any old RFID card records for this customer
+      await client
+          .from('rfid_qr_records')
+          .delete()
+          .eq('customer_id', customerId)
+          .eq('code_type', 'RFID');
+
+      // Insert brand new 1-to-1 unique record
+      await client.from('rfid_qr_records').insert({
+        'customer_id': customerId,
+        'code': trimmedUid,
+        'code_type': 'RFID',
+        'is_active': isActive,
+        'created_at': DateTime.now().toIso8601String(),
+      });
     } catch (e) {
       rethrow;
     }
@@ -893,20 +911,29 @@ class SupabaseService {
       throw Exception('RFID UID cannot be empty.');
     }
 
-    // Duplicate check
+    // Duplicate check across entire database
     try {
       final existing = await client
           .from('rfid_qr_records')
-          .select('id')
+          .select('id, customer_id, profiles:customer_id(full_name)')
           .eq('code', trimmedUid)
           .eq('code_type', 'RFID')
           .maybeSingle();
 
       if (existing != null) {
-        throw Exception('RFID UID "$trimmedUid" is already registered in the system.');
+        final assignedCustId = existing['customer_id']?.toString();
+        if (assignedCustId != null && assignedCustId.isNotEmpty) {
+          String name = 'a customer';
+          if (existing['profiles'] != null && existing['profiles'] is Map) {
+            name = existing['profiles']['full_name']?.toString() ?? 'a customer';
+          }
+          throw Exception('RFID UID "$trimmedUid" is already assigned to $name.');
+        } else {
+          throw Exception('RFID UID "$trimmedUid" is already registered in unassigned inventory.');
+        }
       }
     } catch (e) {
-      if (e.toString().contains('already registered')) rethrow;
+      if (e.toString().contains('already')) rethrow;
     }
 
     try {
@@ -917,6 +944,30 @@ class SupabaseService {
         'created_at': DateTime.now().toIso8601String(),
         // customer_id remains NULL
       });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Fetch unassigned RFID cards waiting in station inventory
+  static Future<List<Map<String, dynamic>>> fetchUnassignedRfidCards() async {
+    try {
+      final response = await client
+          .from('rfid_qr_records')
+          .select('*')
+          .eq('code_type', 'RFID')
+          .isFilter('customer_id', null)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Delete an unassigned RFID card record from inventory
+  static Future<void> deleteUnassignedRfidCard(String rfidRecordId) async {
+    try {
+      await client.from('rfid_qr_records').delete().eq('id', rfidRecordId);
     } catch (e) {
       rethrow;
     }
