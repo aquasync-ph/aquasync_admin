@@ -311,13 +311,14 @@ class _AppSidebarState extends State<AppSidebar> {
               margin: const EdgeInsets.only(bottom: 14),
               child: TextField(
                 controller: _searchController,
+                cursorColor: const Color(0xFF38BDF8),
                 onChanged: (val) => setState(() => _searchQuery = val),
                 style: TextStyle(color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.w600),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: const Color(0xFF041E38).withValues(alpha: 0.8),
-                  hintText: 'Quick Search Navigation',
-                  hintStyle: TextStyle(color: const Color(0xFF7DD3FC).withValues(alpha: 0.7), fontSize: fontSize),
+                  fillColor: const Color(0xFF0098DA).withValues(alpha: 0.20),
+                  hintText: 'Quick Search Navigation...',
+                  hintStyle: TextStyle(color: const Color(0xFFBAE6FD).withValues(alpha: 0.75), fontSize: fontSize),
                   prefixIcon: Icon(Icons.search_rounded, color: const Color(0xFF38BDF8), size: iconSize + 2),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
@@ -328,8 +329,8 @@ class _AppSidebarState extends State<AppSidebar> {
                           },
                         )
                       : null,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0x3838BDF8), width: 1.2)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0x3838BDF8), width: 1.2)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF0098DA), width: 1.2)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: const Color(0xFF0098DA).withValues(alpha: 0.5), width: 1.2)),
                   focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.8)),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

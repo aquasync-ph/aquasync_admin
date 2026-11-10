@@ -13,7 +13,7 @@ DataRow animatedDataRow({
     selected: selected,
     onSelectChanged: onSelectChanged,
     color: isHighlighted
-        ? WidgetStateProperty.all(const Color(0xFF0C3860))
+        ? WidgetStateProperty.all(const Color(0xFFBAE6FD))
         : (color != null ? WidgetStateProperty.all(color) : null),
     cells: cells,
   );

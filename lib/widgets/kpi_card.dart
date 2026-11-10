@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// A modern, premium high-tech glassmorphic summary KPI card component used across all admin dashboard pages.
+/// A modern, professional high-tech iOS-inspired summary KPI card component used across all admin dashboard pages.
 class AppSummaryCard extends StatefulWidget {
   final String label;
   final String value;
@@ -30,13 +30,13 @@ class _AppSummaryCardState extends State<AppSummaryCard> {
 
   @override
   Widget build(BuildContext context) {
-    final double cardPadding = (widget.width != null && widget.width! < 300) ? 16.0 : 20.0;
-    // Significantly larger high-tech icon container as requested
-    final double iconBoxSize = (widget.width != null && widget.width! < 300) ? 52.0 : 60.0;
-    const Color brandPrimary = Color(0xFF0098DA);
-    const Color brandGlow = Color(0xFF38BDF8);
-    const Color darkText = Color(0xFF0B1D2A);
-    const Color subTextCol = Color(0xFF1B4965);
+    final double cardPadding = (widget.width != null && widget.width! < 280) ? 16.0 : 20.0;
+    final double iconBoxSize = (widget.width != null && widget.width! < 280) ? 50.0 : 58.0;
+
+    // High-tech iOS typography & brand colors
+    final Color primaryAccent = widget.accentColor;
+    const Color darkText = Color(0xFF0B1D2A); // High-contrast navy black value
+    const Color labelTextCol = Color(0xFF475569); // Clean slate header label
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -49,28 +49,31 @@ class _AppSummaryCardState extends State<AppSummaryCard> {
           width: widget.width,
           padding: EdgeInsets.all(cardPadding),
           decoration: BoxDecoration(
+            // 30% Structural Glass Surface Color (Modern Elevated Canvas)
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: _isHovered
                   ? [Colors.white, const Color(0xFFF0F9FF)]
-                  : [Colors.white, Colors.white],
+                  : [Colors.white, const Color(0xFFFAFAFA)],
             ),
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: _isHovered ? brandPrimary : brandPrimary.withValues(alpha: 0.30),
+              color: _isHovered
+                  ? primaryAccent
+                  : primaryAccent.withValues(alpha: 0.28),
               width: _isHovered ? 2.0 : 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: brandPrimary.withValues(alpha: _isHovered ? 0.22 : 0.08),
-                blurRadius: _isHovered ? 20 : 12,
-                offset: Offset(0, _isHovered ? 6 : 3),
+                color: primaryAccent.withValues(alpha: _isHovered ? 0.22 : 0.08),
+                blurRadius: _isHovered ? 22 : 14,
+                offset: Offset(0, _isHovered ? 6 : 4),
               ),
               if (_isHovered)
                 BoxShadow(
-                  color: brandGlow.withValues(alpha: 0.15),
-                  blurRadius: 8,
+                  color: primaryAccent.withValues(alpha: 0.15),
+                  blurRadius: 10,
                   spreadRadius: 1,
                 ),
             ],
@@ -78,23 +81,32 @@ class _AppSummaryCardState extends State<AppSummaryCard> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // Left Content: Title, Value & Subtext
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Header / Title (Component Anatomy #1)
                     Row(
                       children: [
+                        // Left Accent Bar (Visual Indicator)
                         Container(
-                          width: 4,
-                          height: 12,
+                          width: 3.5,
+                          height: 13,
                           decoration: BoxDecoration(
-                            color: widget.accentColor,
-                            borderRadius: BorderRadius.circular(2),
+                            color: primaryAccent,
+                            borderRadius: BorderRadius.circular(4),
+                            boxShadow: [
+                              BoxShadow(
+                                color: primaryAccent.withValues(alpha: 0.5),
+                                blurRadius: 4,
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 7),
                         Expanded(
                           child: Text(
                             widget.label.toUpperCase(),
@@ -104,50 +116,55 @@ class _AppSummaryCardState extends State<AppSummaryCard> {
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 1.1,
-                              color: subTextCol,
+                              color: labelTextCol,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
+
+                    // Value / Count (Component Anatomy #2)
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
                         widget.value,
                         style: const TextStyle(
-                          fontSize: 26,
+                          fontSize: 27,
                           fontWeight: FontWeight.w900,
                           color: darkText,
                           letterSpacing: -0.8,
+                          height: 1.1,
                         ),
                       ),
                     ),
+
+                    // Optional SubText / Trend Indicator
                     if (widget.subText != null && widget.subText!.isNotEmpty) ...[
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 7),
                       Row(
                         children: [
                           Container(
-                            width: 7,
-                            height: 7,
+                            width: 6,
+                            height: 6,
                             decoration: BoxDecoration(
-                              color: brandPrimary,
+                              color: primaryAccent,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: brandPrimary.withValues(alpha: 0.5),
+                                  color: primaryAccent.withValues(alpha: 0.6),
                                   blurRadius: 4,
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               widget.subText!,
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontSize: 11.5,
                                 color: Color(0xFF475569),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -162,7 +179,8 @@ class _AppSummaryCardState extends State<AppSummaryCard> {
                 ),
               ),
               const SizedBox(width: 14),
-              // Enhanced high-tech larger icon container
+
+              // Icon Badge / Visual Indicator (Component Anatomy #3)
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 width: iconBoxSize,
@@ -172,29 +190,28 @@ class _AppSummaryCardState extends State<AppSummaryCard> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      brandPrimary.withValues(alpha: _isHovered ? 0.22 : 0.14),
-                      brandPrimary.withValues(alpha: _isHovered ? 0.35 : 0.20),
+                      primaryAccent.withValues(alpha: _isHovered ? 0.25 : 0.14),
+                      primaryAccent.withValues(alpha: _isHovered ? 0.38 : 0.22),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: brandPrimary.withValues(alpha: _isHovered ? 0.6 : 0.35),
+                    color: primaryAccent.withValues(alpha: _isHovered ? 0.70 : 0.40),
                     width: _isHovered ? 1.5 : 1.0,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: brandPrimary.withValues(alpha: 0.15),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      color: primaryAccent.withValues(alpha: _isHovered ? 0.25 : 0.12),
+                      blurRadius: _isHovered ? 12 : 8,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   widget.icon,
-                  color: brandPrimary,
-                  // Larger, striking icon size
-                  size: (widget.width != null && widget.width! < 300) ? 26 : 30,
+                  color: primaryAccent,
+                  size: (widget.width != null && widget.width! < 280) ? 25 : 29,
                 ),
               ),
             ],
@@ -239,4 +256,3 @@ class KpiCard extends StatelessWidget {
     );
   }
 }
-

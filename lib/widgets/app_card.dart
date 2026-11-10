@@ -44,21 +44,21 @@ class AppGlassCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isHighlighted
-              ? [const Color(0xFFE0F2FE), const Color(0xFFBAE6FD)]
+              ? [const Color(0xFFBAE6FD), const Color(0xFF7DD3FC)]
               : [backgroundColor ?? Colors.white, backgroundColor ?? Colors.white],
         ),
         borderRadius: effectiveBorderRadius,
         border: Border.all(
-          color: borderColor,
-          width: isHighlighted ? 2.0 : 1.2,
+          color: isHighlighted ? const Color(0xFF0098DA) : borderColor,
+          width: isHighlighted ? 2.5 : 1.2,
         ),
         boxShadow: [
           if (isHighlighted)
-            BoxShadow(
-              color: brandPrimary.withValues(alpha: 0.28),
-              blurRadius: 22,
-              spreadRadius: 2,
-              offset: const Offset(0, 6),
+            const BoxShadow(
+              color: Color(0x730098DA),
+              blurRadius: 24,
+              spreadRadius: 3,
+              offset: Offset(0, 6),
             )
           else
             BoxShadow(
