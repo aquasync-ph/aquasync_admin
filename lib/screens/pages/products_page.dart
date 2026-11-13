@@ -252,250 +252,310 @@ class _ProductsPageState extends State<ProductsPage> {
       desc = '${desc.substring(0, 100)}...';
     }
 
-    return AppGlassCard(
-      padding: EdgeInsets.zero,
-      borderRadius: BorderRadius.circular(20),
-      child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () => _showProductDetails(prod),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Image & Badge Header
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                            child: Container(
-                              height: 180,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white, Color(0xFFF8FAFC)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFF0284C7).withValues(alpha: 0.25),
+          width: 1.3,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.08),
+            blurRadius: 22,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: const Color(0xFF0B1D2A).withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Clickable Main Card Area
+            Expanded(
+              child: InkWell(
+                onTap: () => _showProductDetails(prod),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. PRODUCT PICTURE CONTAINER (100% Unobstructed, Zero Text Overlay)
+                    Container(
+                      height: 220,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xFFF1F5F9), Color(0xFFE2E8F0)],
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: prod.imageUrl != null && prod.imageUrl!.isNotEmpty
+                          ? Image.network(
+                              prod.imageUrl!,
+                              fit: BoxFit.contain,
                               width: double.infinity,
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.25),
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                              height: 220,
+                              errorBuilder: (context, error, stackTrace) => const Center(
+                                child: Icon(Icons.inventory_2_outlined, size: 52, color: Color(0xFF0284C7)),
                               ),
-                              child: prod.imageUrl != null && prod.imageUrl!.isNotEmpty
-                                  ? Image.network(
-                                      prod.imageUrl!,
-                                      fit: BoxFit.contain,
-                                      width: double.infinity,
-                                      height: 180,
-                                      errorBuilder: (context, error, stackTrace) => const Center(
-                                        child: Icon(Icons.inventory_2_outlined, size: 48, color: Color(0xFFBAE6FD)),
-                                      ),
-                                    )
-                                  : const Center(
-                                      child: Icon(Icons.inventory_2_outlined, size: 54, color: Color(0xFFBAE6FD)),
-                                    ),
+                            )
+                          : const Center(
+                              child: Icon(Icons.inventory_2_outlined, size: 58, color: Color(0xFF0284C7)),
                             ),
-                          ),
-                          // Category Badge (Top Left)
-                          Positioned(
-                            top: 12,
-                            left: 12,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: const Color(0xEE082A45),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: const Color(0x6638BDF8)),
-                              ),
-                              child: Text(
-                                prod.category.toUpperCase(),
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF7DD3FC), letterSpacing: 0.5),
+                    ),
+
+                    // 2. STATUS & CATEGORY HEADER BAR (Cleanly separated below picture)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Category Pill
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              prod.category.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF38BDF8),
+                                letterSpacing: 0.8,
                               ),
                             ),
                           ),
-                          // Availability Toggle Button Badge (Top Right)
+                          // Availability Status Toggle Badge
                           if (!_showArchived)
-                            Positioned(
-                              top: 12,
-                              right: 12,
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () => _toggleAvailability(prod),
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: prod.isAvailable ? const Color(0xEE059669) : const Color(0xEED97706),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-                                      boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 8)],
+                            InkWell(
+                              onTap: () => _toggleAvailability(prod),
+                              borderRadius: BorderRadius.circular(16),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: prod.isAvailable ? const Color(0xFF059669) : const Color(0xFFD97706),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      prod.isAvailable ? Icons.check_circle_rounded : Icons.pause_circle_rounded,
+                                      size: 12,
+                                      color: Colors.white,
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          prod.isAvailable ? Icons.check_circle_rounded : Icons.pause_circle_rounded,
-                                          size: 14,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          prod.isAvailable ? 'AVAILABLE' : 'NOT AVAILABLE',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 0.5),
-                                        ),
-                                      ],
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      prod.isAvailable ? 'AVAILABLE' : 'UNAVAILABLE',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             ),
                         ],
                       ),
-                      // Body Content
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      prod.name,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A), height: 1.2),
+                    ),
+
+                    // 3. PRODUCT TITLE, PRICE & DESCRIPTION
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    prod.name,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 16.5,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF0F172A),
+                                      height: 1.2,
+                                      letterSpacing: -0.2,
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    '₱${prod.price.toStringAsFixed(2)}',
-                                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF0284C7)),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              if (desc.isNotEmpty) ...[
-                                Text(
-                                  desc,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.35),
                                 ),
-                              ] else ...[
-                                const Text(
-                                  'No description provided.',
-                                  style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontStyle: FontStyle.italic),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '₱${prod.price.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF0284C7),
+                                    letterSpacing: -0.5,
+                                  ),
                                 ),
                               ],
-                              const Spacer(),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'ID: ${prod.id.length >= 8 ? prod.id.substring(0, 8) : prod.id}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                                  ),
-                                  if (_showArchived)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFEF3C7),
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: const Color(0xFFF59E0B)),
-                                      ),
-                                      child: const Text('ARCHIVED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFB45309))),
-                                    ),
-                                ],
+                            ),
+                            const SizedBox(height: 6),
+                            if (desc.isNotEmpty) ...[
+                              Text(
+                                desc,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF475569),
+                                  height: 1.35,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ] else ...[
+                              const Text(
+                                'No description provided.',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: Color(0xFF94A3B8),
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                             ],
-                          ),
+                            const Spacer(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'ID: ${prod.id.length >= 8 ? prod.id.substring(0, 8) : prod.id}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                                if (_showArchived)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFEF3C7),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: const Color(0xFFF59E0B)),
+                                    ),
+                                    child: const Text(
+                                      'ARCHIVED',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFFB45309),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Column(
-                  children: [
-                    const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                    const SizedBox(height: 12),
-                    // Action Buttons
-                    !_showArchived
-                        ? Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () => widget.onEditProduct(prod),
-                                  icon: const Icon(Icons.edit_rounded, size: 16),
-                                  label: const Text('Edit', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0284C7),
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 11),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () => _confirmArchive(prod),
-                                  icon: const Icon(Icons.archive_outlined, size: 16),
-                                  label: const Text('Archive', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFD97706),
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 11),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () => _confirmRestore(prod),
-                                  icon: const Icon(Icons.unarchive_outlined, size: 16),
-                                  label: const Text('Restore', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF10B981),
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 11),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () => _confirmDeletePermanently(prod),
-                                  icon: const Icon(Icons.delete_forever_rounded, size: 16),
-                                  label: const Text('Delete', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFDC2626),
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 11),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+
+            // 4. BOTTOM ACTION FOOTER
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                children: [
+                  const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  const SizedBox(height: 12),
+                  !_showArchived
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => widget.onEditProduct(prod),
+                                icon: const Icon(Icons.edit_rounded, size: 15),
+                                label: const Text('Edit', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0284C7),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 11),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => _confirmArchive(prod),
+                                icon: const Icon(Icons.archive_outlined, size: 15),
+                                label: const Text('Archive', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF64748B),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 11),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => _confirmRestore(prod),
+                                icon: const Icon(Icons.unarchive_outlined, size: 15),
+                                label: const Text('Restore', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF10B981),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 11),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => _confirmDeletePermanently(prod),
+                                icon: const Icon(Icons.delete_forever_rounded, size: 15),
+                                label: const Text('Delete', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFDC2626),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 11),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -791,7 +851,7 @@ class _ProductsPageState extends State<ProductsPage> {
                             crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 20,
                             mainAxisSpacing: 20,
-                            mainAxisExtent: 390,
+                            mainAxisExtent: 435,
                           ),
                           itemBuilder: (context, index) => _buildProductCard(paginated[index]),
                         );

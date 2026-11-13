@@ -64,6 +64,8 @@ class OverviewPage extends StatelessWidget {
 
   Widget _buildWelcomeHeader(double width) {
     final isDesktopHeader = width >= 768;
+    final hour = DateTime.now().hour;
+    final greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
     final infoColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +76,7 @@ class OverviewPage extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
@@ -98,7 +100,7 @@ class OverviewPage extends StatelessWidget {
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: const Color(0x3310B981),
                 borderRadius: BorderRadius.circular(20),
@@ -120,23 +122,49 @@ class OverviewPage extends StatelessWidget {
                 ],
               ),
             ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.flash_on_rounded, size: 13, color: Color(0xFFFCD34D)),
+                  const SizedBox(width: 6),
+                  Text(
+                    '$pendingCount Pending Orders',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFEF3C7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         Text(
-          'Welcome back, $adminName',
+          () {
+            final displayName = (adminName.isEmpty || adminName.toLowerCase() == 'new user') ? 'Admin' : adminName;
+            return '$greeting, $displayName 👋';
+          }(),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 26,
             fontWeight: FontWeight.bold,
             color: Colors.white,
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         const Text(
-          'Aqua Pure Water Station • Realtime Station Dispatches & Container Monitoring',
+          'Aqua Pure Water Station • Realtime Station Dispatches, POS Sales & Container Monitoring',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -150,29 +178,29 @@ class OverviewPage extends StatelessWidget {
 
     final ctaButton = ElevatedButton.icon(
       onPressed: () => onNavigate(1),
-      icon: const Icon(Icons.add_shopping_cart_rounded, size: 16),
+      icon: const Icon(Icons.shopping_cart_checkout_rounded, size: 16),
       label: const Text('Manage Orders'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF0098DA),
-        foregroundColor: Colors.white,
-        elevation: 3,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0098DA),
+        elevation: 4,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
       ),
     );
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 22),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF0B1D2A),
-            Color(0xFF1B4965),
-            Color(0xFF0098DA),
+            Color(0xFF061523),
+            Color(0xFF0F2C40),
+            Color(0xFF0284C7),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
@@ -307,6 +335,7 @@ class OverviewPage extends StatelessWidget {
   Widget _buildDashboardActionPanel(double parentWidth) {
     final pendingOrders = orders.where((o) => o.status.toLowerCase() == 'pending').toList();
     final readyForAssignment = orders.where((o) => o.status.toLowerCase() == 'confirmed').toList();
+    final totalActionCount = pendingOrders.length + readyForAssignment.length;
 
     return Container(
       width: double.infinity,
@@ -320,57 +349,100 @@ class OverviewPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.bolt_rounded, color: Color(0xFFD97706), size: 20),
-                    SizedBox(width: 8),
-                    Text('Action Required', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0x22F59E0B),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0x66F59E0B)),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.bolt_rounded, color: Color(0xFFD97706), size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Action Required', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis),
+                            SizedBox(height: 2),
+                            Text('Urgent items requiring admin intervention', style: TextStyle(fontSize: 11, color: Color(0xFF64748B)), overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    '${pendingOrders.length + readyForAssignment.length} Action Items',
-                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.notifications_active_rounded, size: 14, color: Color(0xFFD97706)),
+                      const SizedBox(width: 6),
+                      Text(
+                        '$totalActionCount Action Items',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          Divider(color: const Color(0xFFE2E8F0), height: 1),
+          const Divider(color: Color(0xFFE2E8F0), height: 1),
           Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (pendingOrders.isEmpty && readyForAssignment.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Center(
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: const Center(
                       child: Column(
                         children: [
-                          Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 32),
-                          SizedBox(height: 8),
-                          Text('All Operations Up to Date', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                          SizedBox(height: 2),
-                          Text('No urgent order approvals or driver assignments required.', style: TextStyle(fontSize: 11, color: Color(0xFF475569))),
+                          Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 36),
+                          SizedBox(height: 10),
+                          Text('All Operations Up to Date', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                          SizedBox(height: 4),
+                          Text('No urgent order approvals or driver assignments required.', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                         ],
                       ),
                     ),
                   )
                 else ...[
                   if (pendingOrders.isNotEmpty) ...[
-                    const Text('PENDING APPROVALS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Color(0xFFFCD34D))),
-                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.hourglass_top_rounded, size: 14, color: Color(0xFFD97706)),
+                        const SizedBox(width: 6),
+                        const Text('PENDING APPROVALS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Color(0xFFD97706))),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(6)),
+                          child: Text('${pendingOrders.length}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E))),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
                     ...pendingOrders.take(3).map((o) {
                       final bool isProc = processingOrderIds.contains(o.id);
                       return _buildActionRow(
@@ -385,11 +457,23 @@ class OverviewPage extends StatelessWidget {
                         icon: Icons.hourglass_top_rounded,
                       );
                     }),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                   ],
                   if (readyForAssignment.isNotEmpty) ...[
-                    const Text('AWAITING DRIVER DISPATCH', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Color(0xFF7DD3FC))),
-                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.local_shipping_rounded, size: 14, color: Color(0xFF0284C7)),
+                        const SizedBox(width: 6),
+                        const Text('AWAITING DRIVER DISPATCH', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Color(0xFF0284C7))),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(6)),
+                          child: Text('${readyForAssignment.length}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0369A1))),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
                     ...readyForAssignment.take(3).map((o) => _buildActionRow(
                       parentWidth: parentWidth,
                       title: 'Order ${o.displayId}',
@@ -400,8 +484,16 @@ class OverviewPage extends StatelessWidget {
                       textColor: const Color(0xFF0369A1),
                       icon: Icons.badge_outlined,
                     )),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                   ],
+                  Row(
+                    children: [
+                      const Icon(Icons.card_giftcard_rounded, size: 14, color: Color(0xFF059669)),
+                      const SizedBox(width: 6),
+                      const Text('CUSTOMER REWARDS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Color(0xFF059669))),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
                   _buildActionRow(
                     parentWidth: parentWidth,
                     title: 'Customer Loyalty & Reward Thresholds',
@@ -435,20 +527,39 @@ class OverviewPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.shopping_bag_outlined, color: Color(0xFF0098DA), size: 18),
-                    SizedBox(width: 8),
-                    Text('Recent Station Orders', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A))),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F2FE),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.shopping_bag_outlined, color: Color(0xFF0098DA), size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Recent Station Orders', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0B1D2A)), overflow: TextOverflow.ellipsis),
+                            SizedBox(height: 2),
+                            Text('Latest station customer transactions', style: TextStyle(fontSize: 11, color: Color(0xFF64748B)), overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () => onNavigate(1),
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 12),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 14),
                   label: const Text('View All Orders'),
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF0098DA),
@@ -464,7 +575,7 @@ class OverviewPage extends StatelessWidget {
               padding: EdgeInsets.all(28),
               child: Center(child: Text('No recent orders recorded.', style: TextStyle(fontSize: 12, color: Color(0xFF475569)))),
             )
-          else
+          else ...[
             SizedBox(
               width: double.infinity,
               child: LayoutBuilder(
@@ -474,7 +585,10 @@ class OverviewPage extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minWidth: constraints.maxWidth),
                       child: DataTable(
-                        columnSpacing: 20,
+                        columnSpacing: 24,
+                        headingRowHeight: 40,
+                        dataRowMinHeight: 44,
+                        dataRowMaxHeight: 52,
                         columns: const [
                           DataColumn(label: Text('ORDER #', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                           DataColumn(label: Text('CUSTOMER', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
@@ -497,6 +611,25 @@ class OverviewPage extends StatelessWidget {
                 },
               ),
             ),
+            const Divider(color: Color(0xFFE2E8F0), height: 1),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFF64748B)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Showing latest ${recent.length} station transactions. Click "View All Orders" for complete history.',
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -516,20 +649,39 @@ class OverviewPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.local_shipping_outlined, color: Color(0xFF10B981), size: 18),
-                    SizedBox(width: 8),
-                    Text('Live Delivery Activity', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD1FAE5),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.local_shipping_rounded, color: Color(0xFF059669), size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Live Delivery Activity', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis),
+                            SizedBox(height: 2),
+                            Text('Real-time dispatcher & courier status', style: TextStyle(fontSize: 11, color: Color(0xFF64748B)), overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () => onNavigate(1),
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 12),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 14),
                   label: const Text('View All Deliveries'),
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF0284C7),
@@ -545,7 +697,7 @@ class OverviewPage extends StatelessWidget {
               padding: EdgeInsets.all(28),
               child: Center(child: Text('No active delivery activity.', style: TextStyle(fontSize: 12, color: Color(0xFF475569)))),
             )
-          else
+          else ...[
             SizedBox(
               width: double.infinity,
               child: LayoutBuilder(
@@ -555,7 +707,10 @@ class OverviewPage extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minWidth: constraints.maxWidth),
                       child: DataTable(
-                        columnSpacing: 18,
+                        columnSpacing: 22,
+                        headingRowHeight: 40,
+                        dataRowMinHeight: 44,
+                        dataRowMaxHeight: 52,
                         columns: const [
                           DataColumn(label: Text('ORDER #', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
                           DataColumn(label: Text('DRIVER', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)))),
@@ -578,6 +733,25 @@ class OverviewPage extends StatelessWidget {
                 },
               ),
             ),
+            const Divider(color: Color(0xFFE2E8F0), height: 1),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.local_shipping_outlined, size: 14, color: Color(0xFF059669)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Tracking ${active.length} active dispatches. Live updates sync directly with driver app.',
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -587,6 +761,7 @@ class OverviewPage extends StatelessWidget {
     int availableCount = gallons.where((g) => g.status.toLowerCase() == 'available').length;
     int outCount = gallons.where((g) => g.status.toLowerCase() == 'out_for_delivery' || g.status.toLowerCase() == 'out for delivery').length;
     int borrowedCount = gallons.where((g) => g.status.toLowerCase() == 'borrowed').length;
+    int totalGallons = gallons.length;
 
     return Container(
       width: double.infinity,
@@ -600,34 +775,79 @@ class OverviewPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.opacity_rounded, color: Color(0xFF0284C7), size: 18),
-                    SizedBox(width: 8),
-                    Text('Gallon Inventory Snapshot', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F2FE),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.opacity_rounded, color: Color(0xFF0284C7), size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Gallon Inventory Snapshot', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)), overflow: TextOverflow.ellipsis),
+                            SizedBox(height: 2),
+                            Text('Real-time tracking of container statuses', style: TextStyle(fontSize: 11, color: Color(0xFF64748B)), overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                TextButton(
+                const SizedBox(width: 8),
+                TextButton.icon(
                   onPressed: () => onNavigate(8),
-                  child: const Text('Manage QR Registry →', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
+                  icon: const Icon(Icons.qr_code_scanner_rounded, size: 14),
+                  label: const Text('Manage QR Registry'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF0284C7),
+                    textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
           ),
           const Divider(color: Color(0xFFE2E8F0), height: 1),
           Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(20),
             child: Column(
               children: [
                 _buildMetricRow(label: 'Available Containers', count: availableCount, percentage: _availablePct, color: const Color(0xFF10B981)),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 _buildMetricRow(label: 'Out for Delivery Dispatches', count: outCount, percentage: _outPct, color: const Color(0xFF0284C7)),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 _buildMetricRow(label: 'Borrowed Customer Containers', count: borrowedCount, percentage: _borrowedPct, color: const Color(0xFFEF4444)),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF0284C7)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Total tracked containers: $totalGallons. Regular inventory audits ensure optimal refill operations.',
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -644,20 +864,33 @@ class OverviewPage extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(child: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)), maxLines: 1, overflow: TextOverflow.ellipsis)),
+            Expanded(child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)), maxLines: 1, overflow: TextOverflow.ellipsis)),
             const SizedBox(width: 8),
-            Text('$count ($pctInt%)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color)),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$count ($pctInt%)',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color),
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 6),
-        Container(
-          height: 8,
-          width: double.infinity,
-          decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(20)),
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: (percentage / 100).clamp(0.0, 1.0),
-            child: Container(decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(20))),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            height: 10,
+            width: double.infinity,
+            color: const Color(0xFFE2E8F0),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: (percentage / 100).clamp(0.0, 1.0),
+              child: Container(decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10))),
+            ),
           ),
         ),
       ],
@@ -879,83 +1112,279 @@ class OverviewPage extends StatelessWidget {
     final gcashPct = totalSalesToday > 0 ? (gcashSalesToday / totalSalesToday).clamp(0.0, 1.0) : 0.0;
 
     return AppGlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.pie_chart_outline_rounded, color: Color(0xFF0284C7), size: 18),
-                  SizedBox(width: 8),
-                  Text("Today's Payment Channels Breakdown", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0F2FE),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.pie_chart_outline_rounded, color: Color(0xFF0284C7), size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Today's Payment Channels Breakdown",
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        "Comparative analysis of cash vs digital revenue",
+                        style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-              Text(
-                '₱${totalSalesToday.toStringAsFixed(2)} Total',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF059669)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFECFDF5),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.trending_up_rounded, size: 14, color: Color(0xFF059669)),
+                    const SizedBox(width: 6),
+                    Text(
+                      '₱${totalSalesToday.toStringAsFixed(2)} Total',
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF059669)),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
+          
+          // Visual Proportion Bar
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Revenue Distribution',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  ),
+                  Text(
+                    'Cash: ${(cashPct * 100).toStringAsFixed(1)}% | Digital: ${(gcashPct * 100).toStringAsFixed(1)}%',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  height: 10,
+                  width: double.infinity,
+                  color: const Color(0xFFE2E8F0),
+                  child: totalSalesToday <= 0
+                      ? const SizedBox()
+                      : Row(
+                          children: [
+                            if (cashPct > 0)
+                              Expanded(
+                                flex: (cashPct * 1000).round(),
+                                child: Container(color: const Color(0xFF10B981)),
+                              ),
+                            if (gcashPct > 0)
+                              Expanded(
+                                flex: (gcashPct * 1000).round(),
+                                child: Container(color: const Color(0xFF0284C7)),
+                              ),
+                          ],
+                        ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+
+          // Breakdown Cards Row
           Row(
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.25)),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFF0FDF4), Colors.white],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.payments_rounded, color: Color(0xFF059669), size: 16),
-                          SizedBox(width: 6),
-                          Text('Cash Sales', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF065F46))),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD1FAE5),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.payments_rounded, color: Color(0xFF059669), size: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text('Cash Sales', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF065F46))),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '${(cashPct * 100).toStringAsFixed(1)}%',
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF047857)),
+                            ),
+                          ),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '₱${cashSalesToday.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      ),
                       const SizedBox(height: 6),
-                      Text('₱${cashSalesToday.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                      const SizedBox(height: 4),
-                      Text('${(cashPct * 100).toStringAsFixed(1)}% of revenue', style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                      const Row(
+                        children: [
+                          Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF059669)),
+                          SizedBox(width: 4),
+                          Text('Primary POS channel', style: TextStyle(fontSize: 11, color: Color(0xFF475569))),
+                        ],
+                      ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.25)),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFEFF6FF), Colors.white],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF0284C7), size: 16),
-                          SizedBox(width: 6),
-                          Text('GCash / Digital', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0369A1))),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE0F2FE),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF0284C7), size: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text('GCash / Digital', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0369A1))),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '${(gcashPct * 100).toStringAsFixed(1)}%',
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0369A1)),
+                            ),
+                          ),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '₱${gcashSalesToday.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      ),
                       const SizedBox(height: 6),
-                      Text('₱${gcashSalesToday.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                      const SizedBox(height: 4),
-                      Text('${(gcashPct * 100).toStringAsFixed(1)}% of revenue', style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                      const Row(
+                        children: [
+                          Icon(Icons.qr_code_rounded, size: 12, color: Color(0xFF0284C7)),
+                          SizedBox(width: 4),
+                          Text('Online & QR payments', style: TextStyle(fontSize: 11, color: Color(0xFF475569))),
+                        ],
+                      ),
                     ],
                   ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 14),
+
+          // Footer Insight / Tip
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.lightbulb_outline_rounded, size: 16, color: Color(0xFFD97706)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    totalSalesToday == 0
+                        ? 'No transactions recorded yet today. Sales breakdown will update automatically.'
+                        : cashSalesToday > gcashSalesToday
+                            ? 'Cash represents the majority of today\'s revenue (${(cashPct * 100).toStringAsFixed(0)}%).'
+                            : 'Digital payments lead today\'s revenue breakdown (${(gcashPct * 100).toStringAsFixed(0)}%).',
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -969,146 +1398,331 @@ class OverviewPage extends StatelessWidget {
       double sum = reviews.fold(0.0, (acc, r) => acc + r.rating);
       avgRating = sum / reviews.length;
     }
+    final driverOnlinePct = drivers.isNotEmpty ? (activeDriversCount / drivers.length * 100) : 0.0;
 
     return AppGlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.admin_panel_settings_rounded, color: Color(0xFFD97706), size: 18),
-              SizedBox(width: 8),
-              Text('Station Network & Fleet Health', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.hub_rounded, color: Color(0xFFD97706), size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Station Network & Fleet Health',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Real-time metrics across customers, drivers, inventory & ratings',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.bolt_rounded, size: 14, color: Color(0xFF0284C7)),
+                    SizedBox(width: 6),
+                    Text(
+                      'System Online',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
+
+          // 4 Metric Cards Row
           Row(
             children: [
+              // 1. Customers
               Expanded(
                 child: InkWell(
                   onTap: () => onNavigate(5),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.25)),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFF0F9FF), Colors.white],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0284C7).withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('CUSTOMERS', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
-                            Icon(Icons.people_rounded, size: 14, color: Color(0xFF0284C7)),
+                            const Text('CUSTOMERS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE0F2FE),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.people_rounded, size: 14, color: Color(0xFF0284C7)),
+                            ),
                           ],
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${customers.length}',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        ),
                         const SizedBox(height: 6),
-                        Text('${customers.length}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        const SizedBox(height: 2),
-                        const Text('Registered accounts', style: TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                        const Row(
+                          children: [
+                            Icon(Icons.verified_user_rounded, size: 12, color: Color(0xFF0284C7)),
+                            SizedBox(width: 4),
+                            Text('Registered accounts', style: TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
+
+              // 2. Drivers
               Expanded(
                 child: InkWell(
                   onTap: () => onNavigate(13),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.25)),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFF0FDF4), Colors.white],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('DRIVERS', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
-                            Icon(Icons.badge_rounded, size: 14, color: Color(0xFF059669)),
+                            const Text('DRIVERS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF059669))),
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD1FAE5),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.badge_rounded, size: 14, color: Color(0xFF059669)),
+                            ),
                           ],
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '$activeDriversCount / ${drivers.length}',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        ),
                         const SizedBox(height: 6),
-                        Text('$activeDriversCount / ${drivers.length}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        const SizedBox(height: 2),
-                        const Text('Active / Total drivers', style: TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                        Row(
+                          children: [
+                            const Icon(Icons.local_shipping_rounded, size: 12, color: Color(0xFF059669)),
+                            const SizedBox(width: 4),
+                            Text('${driverOnlinePct.toStringAsFixed(0)}% active fleet', style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
+
+              // 3. Products
               Expanded(
                 child: InkWell(
                   onTap: () => onNavigate(7),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.25)),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFFFBEB), Colors.white],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFD97706).withValues(alpha: 0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFD97706).withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('PRODUCTS', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
-                            Icon(Icons.inventory_2_rounded, size: 14, color: Color(0xFFD97706)),
+                            const Text('PRODUCTS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEF3C7),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.inventory_2_rounded, size: 14, color: Color(0xFFD97706)),
+                            ),
                           ],
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${products.length}',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        ),
                         const SizedBox(height: 6),
-                        Text('${products.length}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        const SizedBox(height: 2),
-                        const Text('Items catalog', style: TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                        const Row(
+                          children: [
+                            Icon(Icons.inventory_rounded, size: 12, color: Color(0xFFD97706)),
+                            SizedBox(width: 4),
+                            Text('Items catalog', style: TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
+
+              // 4. Ratings
               Expanded(
                 child: InkWell(
                   onTap: () => onNavigate(4),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.25)),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFEF2F2), Colors.white],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFDC2626).withValues(alpha: 0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFDC2626).withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('RATINGS', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFFDC2626))),
-                            Icon(Icons.star_rounded, size: 14, color: Color(0xFFDC2626)),
+                            const Text('RATINGS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFDC2626))),
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEE2E2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.star_rounded, size: 14, color: Color(0xFFDC2626)),
+                            ),
                           ],
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          reviews.isNotEmpty ? avgRating.toStringAsFixed(1) : '—',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        ),
                         const SizedBox(height: 6),
-                        Text(reviews.isNotEmpty ? avgRating.toStringAsFixed(1) : '—', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        const SizedBox(height: 2),
-                        Text('${reviews.length} reviews', style: const TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                        Row(
+                          children: [
+                            const Icon(Icons.rate_review_rounded, size: 12, color: Color(0xFFDC2626)),
+                            const SizedBox(width: 4),
+                            Text('${reviews.length} reviews', style: TextStyle(fontSize: 10, color: Color(0xFF475569))),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 14),
+
+          // Footer Insight Banner
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.verified_rounded, size: 16, color: Color(0xFF059669)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Fleet status: $activeDriversCount of ${drivers.length} drivers currently online. Click any card to manage records.',
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
